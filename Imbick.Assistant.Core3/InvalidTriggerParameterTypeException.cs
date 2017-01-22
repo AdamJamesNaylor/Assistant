@@ -1,4 +1,5 @@
-﻿namespace Imbick.Assistant.WebApi {
+﻿namespace Imbick.Assistant.Core
+{
     using System;
 
     public class InvalidTriggerParameterTypeException

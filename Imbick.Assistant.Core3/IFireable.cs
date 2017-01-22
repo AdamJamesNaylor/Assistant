@@ -1,4 +1,4 @@
-﻿namespace Imbick.Assistant.WebApi {
+﻿namespace Imbick.Assistant.Core {
     using System.Collections.Generic;
 
     public interface IFireable {

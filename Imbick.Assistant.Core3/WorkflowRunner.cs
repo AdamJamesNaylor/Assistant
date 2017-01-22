@@ -1,5 +1,6 @@
 ﻿
-namespace Imbick.Assistant.WebApi {
+namespace Imbick.Assistant.Core
+{
     using System.Linq;
     using System.Collections.Generic;
 
@@ -7,7 +8,7 @@ namespace Imbick.Assistant.WebApi {
         private readonly List<Workflow> _workflows = new List<Workflow>();
 
         public WorkflowRunner() {
-            var emailTrigger = new EmailReceivedTrigger();
+            var emailTrigger = new EmailReceivedTrigger("an.notrust@gmail.com", "EUJDoQbPhUGWNpQssY3egtfU5dg5tg");
             var subjectTrigger = new StringEqualsTrigger("email_subject", "test email");
             var emailNotify = new Workflow();
             emailNotify.AddTrigger(emailTrigger);
