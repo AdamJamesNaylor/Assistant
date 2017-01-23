@@ -2,12 +2,11 @@
     using System.Collections.Generic;
 
     public class Workflow {
+        public string Name { get; private set; }
         public IReadOnlyCollection<IRunnable> Steps => _steps.AsReadOnly();
 
-        private readonly Dictionary<string, WorkflowParameter> _parameters;
-        private readonly List<IRunnable> _steps;
-
-        public Workflow() {
+        public Workflow(string name) {
+            Name = name;
             _steps = new List<IRunnable>();
             _parameters = new Dictionary<string, WorkflowParameter>();
         }
@@ -24,13 +23,8 @@
         public void AddStep(IRunnable step) {
             _steps.Add(step);
         }
-    }
 
-    public class StepRunResult {
-        public bool Continue { get; set; }
-
-        public StepRunResult(bool @continue = true) {
-            Continue = @continue;
-        }
+        private readonly Dictionary<string, WorkflowParameter> _parameters;
+        private readonly List<IRunnable> _steps;
     }
 }

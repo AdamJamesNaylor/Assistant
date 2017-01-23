@@ -25,6 +25,7 @@ namespace Imbick.Assistant.Core.Samplers {
             _host = host;
             _port = port;
             _buffer = new List<byte>();
+            _offset = 0;
         }
 
         public StepRunResult Run(IDictionary<string, WorkflowParameter> workflowParameters) {
@@ -52,9 +53,11 @@ namespace Imbick.Assistant.Core.Samplers {
 
                     workflowParameters.Add("MinecraftServerPlayerCount",
                         new WorkflowParameter<int>("MinecraftServerPlayerCount", ping.Players.Online));
-                    var players = ping.Players.Sample.Select(t => new MinecraftPlayer {Name = t.Name, Id = t.Id}).ToList();
-                    var param = new WorkflowParameter<MinecraftPlayer[]>("MinecraftServerPlayers", players.ToArray()); //may need to be a intrinsic workflow param for each player so that subsequent steps don't need to understand the MinecraftPlayer type.
-                    workflowParameters.Add("MinecraftServerPlayers", param);
+                    if (ping.Players.Online > 0) {
+                        var players = ping.Players.Sample.Select(t => new MinecraftPlayer {Name = t.Name, Id = t.Id}).ToList();
+                        var param = new WorkflowParameter<MinecraftPlayer[]>("MinecraftServerPlayers", players.ToArray()); //may need to be a intrinsic workflow param for each player so that subsequent steps don't need to understand the MinecraftPlayer type.
+                        workflowParameters.Add("MinecraftServerPlayers", param);
+                    }
                 } catch (IOException) {
                     //If an IOException is thrown then the server didn't 
                     //send us a VarInt or sent us an invalid one.
@@ -93,6 +96,7 @@ namespace Imbick.Assistant.Core.Samplers {
 
         private void Disconnect() {
             _client.Close();
+            _offset = 0;
         }
 
         internal byte ReadByte(byte[] buffer) {

@@ -1,26 +1,16 @@
-﻿
 namespace Imbick.Assistant.Core {
     using System;
     using System.Threading.Tasks;
     using Newtonsoft.Json;
     using StackExchange.Redis;
 
-    public interface IState {
-        void Set(string key, string value);
-        Task<string> Get(string key);
-        Task<long> ListLength(string key);
-        Task<T> ListGetByIndex<T>(string key, long index);
-        void ListSetByIndex<T>(string key, long index, T value);
-        void ListRemove<T>(string key, long count, T value);
-        Task<bool> ListContains<T>(string key, T value, Func<T, T, bool> comparison);
-    }
-
-    public class StateProvider
+    public class RedisStateProvider
         : IState {
         private readonly ConnectionMultiplexer _redisConnection;
 
-        public StateProvider(string host, short port) {
-            _redisConnection = ConnectionMultiplexer.Connect($"{host}:{port}");
+        public RedisStateProvider(string host, short port = 6379) {
+            var configurationOptions = new ConfigurationOptions {EndPoints = {{host, port}}, DefaultDatabase = 1};
+            _redisConnection = ConnectionMultiplexer.Connect(configurationOptions);
         }
 
         public void Set(string key, string value) {

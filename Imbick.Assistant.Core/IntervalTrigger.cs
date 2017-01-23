@@ -12,7 +12,7 @@
 
         public StepRunResult Run(IDictionary<string, WorkflowParameter> workflowParameter) {
             var now = DateTime.Now;
-            if (_lastFired + _interval < now)
+            if (_lastFired + _interval > now)
                 return new StepRunResult(false);
 
             _lastFired = now;

@@ -12,6 +12,9 @@ namespace Imbick.Assistant.Core.Conditions {
         }
 
         public StepRunResult Run(IDictionary<string, WorkflowParameter> workflowParameters) {
+            if (!workflowParameters.ContainsKey("MinecraftServerPlayers"))
+                return new StepRunResult(false);
+
             var param = workflowParameters["MinecraftServerPlayers"];
             if (param.Type != typeof (MinecraftPlayer[]))
                 return new StepRunResult(false);
