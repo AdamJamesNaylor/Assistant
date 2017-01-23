@@ -5,6 +5,11 @@
     public class WorkflowParameter<T>
         : WorkflowParameter {
         public override Type Type => typeof (T);
+
+        public WorkflowParameter(string name, T value) {
+            Value = value;
+            Name = name;
+        }
     }
 
     public abstract class WorkflowParameter {

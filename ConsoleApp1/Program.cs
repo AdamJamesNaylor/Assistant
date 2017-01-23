@@ -20,8 +20,8 @@ namespace ConsoleApp1 {
             var mcSampler = new MinecraftServerListPingSampler("mc.selea.se");
             workflow.AddStep(mcSampler);
 
-            var isCarl = new StringEqualsCondition("MinecraftServerPlayer[0].Name", "Imbick");
-            workflow.AddStep(isCarl);
+            var isMe = new StringEqualsCondition("MinecraftPlayerConnected", "Imbick");
+            workflow.AddStep(isMe);
 
             var printSuccess = new WriteStringToConsoleStep("Found Imbick!");
             workflow.AddStep(printSuccess);

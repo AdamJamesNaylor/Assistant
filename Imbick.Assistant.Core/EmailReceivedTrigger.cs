@@ -32,10 +32,7 @@ namespace Imbick.Assistant.Core {
             if (newMessage == null)
                 return new StepRunResult { Continue = false };
 
-            var param = new WorkflowParameter<string> {
-                Name = "email_subject",
-                Value = newMessage.Headers.Subject
-            };
+            var param = new WorkflowParameter<string>("email_subject", newMessage.Headers.Subject);
             workflowParameter.Add(param.Name, param);
             return new StepRunResult { Continue = true };
         }

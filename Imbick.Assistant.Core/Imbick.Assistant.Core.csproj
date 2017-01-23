@@ -34,8 +34,13 @@
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="StackExchange.Redis, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\StackExchange.Redis.1.2.0\lib\net45\StackExchange.Redis.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.IO.Compression" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -46,6 +51,7 @@
   <ItemGroup>
     <Compile Include="AnswerMessageTraverser.cs" />
     <Compile Include="AttachmentFinder.cs" />
+    <Compile Include="Conditions\MinecraftPlayerConnectedCondition.cs" />
     <Compile Include="Encoding\Base64.cs" />
     <Compile Include="Encoding\ContentTransferEncoding.cs" />
     <Compile Include="EmailReceivedTrigger.cs" />
@@ -72,6 +78,7 @@
     <Compile Include="Rfc2822DateTime.cs" />
     <Compile Include="RfcMailAddress.cs" />
     <Compile Include="SizeParser.cs" />
+    <Compile Include="StateProvider.cs" />
     <Compile Include="StreamExtensions.cs" />
     <Compile Include="StringEqualsTrigger.cs" />
     <Compile Include="StringExtensions.cs" />

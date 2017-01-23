@@ -3,6 +3,6 @@
     using System.Collections.Generic;
 
     public interface IRunnable {
-        StepRunResult Run(IDictionary<string, WorkflowParameter> workflowParameter);
+        StepRunResult Run(IDictionary<string, WorkflowParameter> workflowParameters);
     }
 }

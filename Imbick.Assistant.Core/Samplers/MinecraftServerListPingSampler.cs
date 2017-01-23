@@ -2,8 +2,14 @@ namespace Imbick.Assistant.Core.Samplers {
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Net.Sockets;
     using Newtonsoft.Json;
+
+    public class MinecraftPlayer {
+        public string Name { get; set; }
+        public string Id { get; set; }
+    }
 
     public class MinecraftServerListPingSampler
         : IRunnable {
@@ -21,7 +27,7 @@ namespace Imbick.Assistant.Core.Samplers {
             _buffer = new List<byte>();
         }
 
-        public StepRunResult Run(IDictionary<string, WorkflowParameter> workflowParameter) {
+        public StepRunResult Run(IDictionary<string, WorkflowParameter> workflowParameters) {
 
             using (_client = new TcpClient()) {
                 if (!Connect())
@@ -44,27 +50,16 @@ namespace Imbick.Assistant.Core.Samplers {
                     var json = ReadString(buffer, jsonLength);
                     var ping = JsonConvert.DeserializeObject<PingPayload>(json);
 
-                    workflowParameter.Add("MinecraftServerPlayerCount",
-                        new WorkflowParameter<int> {Name = "MinecraftServerPlayerCount", Value = ping.Players.Online});
-                    for (int i = 0; i < ping.Players.Sample.Count; i++) {
-                        workflowParameter.Add($"MinecraftServerPlayer[{i}].Name",
-                            new WorkflowParameter<string> {
-                                Name = $"MinecraftServerPlayer[{i}].Name",
-                                Value = ping.Players.Sample[i].Name
-                            });
-                        workflowParameter.Add($"MinecraftServerPlayer[{i}].Id",
-                            new WorkflowParameter<string> {
-                                Name = $"MinecraftServerPlayer[{i}].Id",
-                                Value = ping.Players.Sample[i].Id
-                            });
-                    }
-                }
-                catch (IOException) {
+                    workflowParameters.Add("MinecraftServerPlayerCount",
+                        new WorkflowParameter<int>("MinecraftServerPlayerCount", ping.Players.Online));
+                    var players = ping.Players.Sample.Select(t => new MinecraftPlayer {Name = t.Name, Id = t.Id}).ToList();
+                    var param = new WorkflowParameter<MinecraftPlayer[]>("MinecraftServerPlayers", players.ToArray()); //may need to be a intrinsic workflow param for each player so that subsequent steps don't need to understand the MinecraftPlayer type.
+                    workflowParameters.Add("MinecraftServerPlayers", param);
+                } catch (IOException) {
                     //If an IOException is thrown then the server didn't 
                     //send us a VarInt or sent us an invalid one.
                     return new StepRunResult(false);
-                }
-                finally {
+                } finally {
                     Disconnect();
                 }
                 return new StepRunResult();
@@ -81,8 +76,12 @@ namespace Imbick.Assistant.Core.Samplers {
         }
 
         private bool Connect() {
-            _client.Connect(_host, _port);
-
+            try {
+                _client.Connect(_host, _port);
+            } catch (SocketException ex) {
+                //log unable to connect
+                return false;
+            }
             if (!_client.Connected) {
                 //log unable to connect
                 return false;
