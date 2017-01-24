@@ -1,4 +1,4 @@
-namespace Imbick.Assistant.Core {
+namespace Imbick.Assistant.Core.Conditions {
     using System;
     using System.Collections.Generic;
     using System.IO;
@@ -10,7 +10,8 @@ namespace Imbick.Assistant.Core {
     public class Pop3EmailReceivedCondition
         : Condition, IRunnable, IDisposable {
 
-        public Pop3EmailReceivedCondition(string username, string password, string domain) {
+        public Pop3EmailReceivedCondition(string username, string password, string domain)
+            : base("Pop3 email received condition") {
             _username = username;
             _password = password;
             _tcpClient = null;
@@ -30,11 +31,11 @@ namespace Imbick.Assistant.Core {
             Disconnect();
 
             if (newMessage == null)
-                return new StepRunResult { Continue = false };
+                return new StepRunResult {Continue = false};
 
             var param = new WorkflowParameter<string>("email_subject", newMessage.Headers.Subject);
             workflowParameter.Add(param.Name, param);
-            return new StepRunResult { Continue = true };
+            return new StepRunResult {Continue = true};
         }
 
         private Message RetrieveFirstNewMail() {

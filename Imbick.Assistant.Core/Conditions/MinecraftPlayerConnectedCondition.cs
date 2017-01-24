@@ -7,7 +7,8 @@ namespace Imbick.Assistant.Core.Conditions {
     public class MinecraftPlayerConnectedCondition
         : Condition, IRunnable {
 
-        public MinecraftPlayerConnectedCondition(IState state) {
+        public MinecraftPlayerConnectedCondition(IState state)
+        :base("Minecraft player connected condition") {
             _state = state;
         }
 
