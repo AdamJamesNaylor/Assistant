@@ -1,10 +1,11 @@
-namespace Imbick.Assistant.Core.Samplers {
+namespace Imbick.Assistant.Core.Steps.Samplers {
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Net.Sockets;
     using Newtonsoft.Json;
+    using Steps;
 
     public class MinecraftPlayer {
         public string Name { get; set; }
@@ -12,7 +13,7 @@ namespace Imbick.Assistant.Core.Samplers {
     }
 
     public class MinecraftServerListPingSampler
-        : IRunnable {
+        : Step {
 
         private readonly List<byte> _buffer;
         private NetworkStream _stream;
@@ -21,14 +22,15 @@ namespace Imbick.Assistant.Core.Samplers {
         private readonly short _port;
         private TcpClient _client;
 
-        public MinecraftServerListPingSampler(string host, short port = 25565) {
+        public MinecraftServerListPingSampler(string host, short port = 25565)
+            : base("Minecraft server list ping sampler") {
             _host = host;
             _port = port;
             _buffer = new List<byte>();
             _offset = 0;
         }
 
-        public StepRunResult Run(IDictionary<string, WorkflowParameter> workflowParameters) {
+        public override StepRunResult Run(IDictionary<string, WorkflowParameter> workflowParameters) {
 
             using (_client = new TcpClient()) {
                 if (!Connect())

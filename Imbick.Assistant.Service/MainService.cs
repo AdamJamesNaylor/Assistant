@@ -1,11 +1,12 @@
 ﻿
 namespace Imbick.Assistant.Service {
     using Core;
-    using Core.Conditions;
-    using Core.Samplers;
     using System;
     using System.ServiceProcess;
-    
+    using Core.Steps.Actions;
+    using Core.Steps.Conditions;
+    using Core.Steps.Samplers;
+
     public partial class MainService
         : ServiceBase {
 
@@ -33,7 +34,7 @@ namespace Imbick.Assistant.Service {
             var isMe = new StringEqualsCondition("MinecraftPlayerConnected", "Imbick");
             workflow.AddStep(isMe);
 
-            var printSuccess = new WriteStringToConsoleStep("Found Imbick!");
+            var printSuccess = new WriteStringToConsoleAction("Found Imbick!");
             workflow.AddStep(printSuccess);
 
             var runner = new WorkflowRunner(100);

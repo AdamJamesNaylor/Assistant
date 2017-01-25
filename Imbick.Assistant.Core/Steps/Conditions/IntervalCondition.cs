@@ -1,10 +1,11 @@
-﻿namespace Imbick.Assistant.Core.Conditions {
+﻿namespace Imbick.Assistant.Core.Steps.Conditions {
     using System;
     using System.Collections.Generic;
     using NLog;
+    using Steps;
 
     public class IntervalCondition
-        : Condition, IRunnable {
+        : Condition {
 
         public IntervalCondition(TimeSpan interval)
             : base($"{interval.ToReadableString()} interval condition") {
@@ -13,7 +14,7 @@
             _logger = LogManager.GetCurrentClassLogger();
         }
 
-        public StepRunResult Run(IDictionary<string, WorkflowParameter> workflowParameter) {
+        public override StepRunResult Run(IDictionary<string, WorkflowParameter> workflowParameter) {
             _logger.Trace(
                 $"IntervalCondition running with {_interval.Milliseconds}ms interval. Last fired {_lastFired}.");
 

@@ -2,8 +2,9 @@
 namespace ConsoleApp1 {
     using System;
     using Imbick.Assistant.Core;
-    using Imbick.Assistant.Core.Conditions;
-    using Imbick.Assistant.Core.Samplers;
+    using Imbick.Assistant.Core.Steps.Actions;
+    using Imbick.Assistant.Core.Steps.Conditions;
+    using Imbick.Assistant.Core.Steps.Samplers;
 
     internal class Program {
         private static void Main(string[] args) {
@@ -33,7 +34,7 @@ namespace ConsoleApp1 {
             var isMe = new StringEqualsCondition("MinecraftPlayerConnected", "Imbick");
             workflow.AddStep(isMe);
 
-            var printSuccess = new WriteStringToConsoleStep("Found Imbick!");
+            var printSuccess = new WriteStringToConsoleAction("Found Imbick!");
             workflow.AddStep(printSuccess);
 
             var runner = new WorkflowRunner(100);

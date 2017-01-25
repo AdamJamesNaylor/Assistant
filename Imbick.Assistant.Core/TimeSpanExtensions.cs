@@ -1,4 +1,4 @@
-namespace Imbick.Assistant.Core.Conditions {
+namespace Imbick.Assistant.Core {
     using System;
 
     public static class TimeSpanExtensions {

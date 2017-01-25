@@ -1,18 +1,19 @@
 ﻿
-namespace Imbick.Assistant.Core.Conditions {
+namespace Imbick.Assistant.Core.Steps.Conditions {
     using System.Collections.Generic;
     using System.Linq;
-    using Samplers;
+    using Steps;
+    using Steps.Samplers;
 
     public class MinecraftPlayerConnectedCondition
-        : Condition, IRunnable {
+        : Condition {
 
         public MinecraftPlayerConnectedCondition(IState state)
         :base("Minecraft player connected condition") {
             _state = state;
         }
 
-        public StepRunResult Run(IDictionary<string, WorkflowParameter> workflowParameters) {
+        public override StepRunResult Run(IDictionary<string, WorkflowParameter> workflowParameters) {
             if (!workflowParameters.ContainsKey("MinecraftServerPlayers"))
                 return new StepRunResult(false);
 

@@ -55,11 +55,11 @@
   <ItemGroup>
     <Compile Include="AnswerMessageTraverser.cs" />
     <Compile Include="AttachmentFinder.cs" />
-    <Compile Include="Conditions\MinecraftPlayerConnectedCondition.cs" />
-    <Compile Include="Conditions\TimeSpanExtensions.cs" />
+    <Compile Include="Steps\Conditions\MinecraftPlayerConnectedCondition.cs" />
+    <Compile Include="TimeSpanExtensions.cs" />
     <Compile Include="Encoding\Base64.cs" />
     <Compile Include="Encoding\ContentTransferEncoding.cs" />
-    <Compile Include="Conditions\Pop3EmailReceivedCondition.cs" />
+    <Compile Include="Steps\Conditions\Pop3EmailReceivedCondition.cs" />
     <Compile Include="Encoding\EncodedWord.cs" />
     <Compile Include="Encoding\EncodingFinder.cs" />
     <Compile Include="FindAllMessagePartsWithMediaType.cs" />
@@ -68,7 +68,7 @@
     <Compile Include="HeaderFieldParser.cs" />
     <Compile Include="IAnswerMessageTraverser.cs" />
     <Compile Include="IFireable.cs" />
-    <Compile Include="Conditions\IntervalCondition.cs" />
+    <Compile Include="Steps\Conditions\IntervalCondition.cs" />
     <Compile Include="InvalidTriggerParameterTypeException.cs" />
     <Compile Include="IQuestionAnswerMessageTraverser.cs" />
     <Compile Include="IRunnable.cs" />
@@ -83,21 +83,23 @@
     <Compile Include="Rfc2231Decoder.cs" />
     <Compile Include="Rfc2822DateTime.cs" />
     <Compile Include="RfcMailAddress.cs" />
+    <Compile Include="Steps\Samplers\SamplerStep.cs" />
     <Compile Include="SizeParser.cs" />
     <Compile Include="IState.cs" />
-    <Compile Include="Step.cs" />
-    <Compile Include="StepRunResult.cs" />
+    <Compile Include="Steps\Step.cs" />
+    <Compile Include="Steps\StepRunResult.cs" />
     <Compile Include="StreamExtensions.cs" />
-    <Compile Include="Conditions\StringEqualsCondition.cs" />
+    <Compile Include="Steps\Conditions\StringEqualsCondition.cs" />
     <Compile Include="StringExtensions.cs" />
     <Compile Include="TextVersionFinder.cs" />
-    <Compile Include="Conditions\Condition.cs" />
-    <Compile Include="TriggerParameter.cs" />
-    <Compile Include="Samplers\MinecraftServerListPingSampler.cs" />
+    <Compile Include="Steps\Conditions\Condition.cs" />
+    <Compile Include="Steps\Samplers\MinecraftServerListPingSampler.cs" />
     <Compile Include="Workflow.cs" />
+    <Compile Include="WorkflowParameter.cs" />
     <Compile Include="WorkflowRunner.cs" />
-    <Compile Include="WriteLineToConsoleAction.cs" />
-    <Compile Include="WriteStringToConsoleStep.cs" />
+    <Compile Include="Steps\Actions\WriteParameterToConsoleStep.cs" />
+    <Compile Include="Steps\Actions\WriteStringToConsoleAction.cs" />
+    <Compile Include="Steps\Actions\ActionStep.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="NLog.config">

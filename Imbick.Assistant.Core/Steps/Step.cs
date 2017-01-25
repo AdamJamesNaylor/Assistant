@@ -1,0 +1,14 @@
+﻿namespace Imbick.Assistant.Core.Steps {
+    using System.Collections.Generic;
+
+    public abstract class Step
+        : IRunnable {
+        public string Name { get; protected set; }
+
+        protected Step(string name) {
+            Name = name;
+        }
+
+        public abstract StepRunResult Run(IDictionary<string, WorkflowParameter> workflowParameters);
+    }
+}

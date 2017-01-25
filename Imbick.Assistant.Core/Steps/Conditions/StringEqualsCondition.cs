@@ -1,8 +1,9 @@
-﻿namespace Imbick.Assistant.Core.Conditions {
+﻿namespace Imbick.Assistant.Core.Steps.Conditions {
     using System.Collections.Generic;
+    using Steps;
 
     public class StringEqualsCondition
-        : Condition, IRunnable {
+        : Condition {
 
         public StringEqualsCondition(string paramName, string operand)
             : base("String equals condition") {
@@ -10,7 +11,7 @@
             _operand = operand;
         }
 
-        public StepRunResult Run(IDictionary<string, WorkflowParameter> workflowParameter) {
+        public override StepRunResult Run(IDictionary<string, WorkflowParameter> workflowParameter) {
             var triggerParam = workflowParameter[_paramName];
             if (triggerParam.Type != typeof (string))
                 throw new InvalidWorkflowParameterTypeException(triggerParam, typeof (string));

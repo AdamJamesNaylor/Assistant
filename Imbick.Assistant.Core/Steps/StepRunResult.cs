@@ -1,4 +1,4 @@
-﻿namespace Imbick.Assistant.Core {
+﻿namespace Imbick.Assistant.Core.Steps {
     public class StepRunResult {
         public bool Continue { get; set; }
 

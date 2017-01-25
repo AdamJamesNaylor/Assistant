@@ -1,14 +1,15 @@
 ﻿namespace Imbick.Assistant.Core {
     using System.Collections.Generic;
     using NLog;
+    using Steps;
 
     public class Workflow {
-        public string Name { get; private set; }
-        public IReadOnlyCollection<IRunnable> Steps => _steps.AsReadOnly();
+        public string Name { get; }
+        public IReadOnlyCollection<Step> Steps => _steps.AsReadOnly();
 
         public Workflow(string name) {
             Name = name;
-            _steps = new List<IRunnable>();
+            _steps = new List<Step>();
             _parameters = new Dictionary<string, WorkflowParameter>();
             _logger = LogManager.GetCurrentClassLogger();
         }
@@ -22,13 +23,13 @@
             _parameters.Clear();
         }
 
-        public void AddStep(IRunnable step) {
-            //_logger.Trace();
+        public void AddStep(Step step) {
+            _logger.Trace($"Added step {step.Name} to workflow {Name}.");
             _steps.Add(step);
         }
 
         private readonly Dictionary<string, WorkflowParameter> _parameters;
-        private readonly List<IRunnable> _steps;
-        private Logger _logger;
+        private readonly List<Step> _steps;
+        private readonly Logger _logger;
     }
 }

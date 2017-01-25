@@ -1,4 +1,4 @@
-namespace Imbick.Assistant.Core.Conditions {
+namespace Imbick.Assistant.Core.Steps.Conditions {
     using System;
     using System.Collections.Generic;
     using System.IO;
@@ -6,9 +6,10 @@ namespace Imbick.Assistant.Core.Conditions {
     using System.Net.Sockets;
     using System.Security.Cryptography;
     using System.Text;
+    using Steps;
 
     public class Pop3EmailReceivedCondition
-        : Condition, IRunnable, IDisposable {
+        : Condition, IDisposable {
 
         public Pop3EmailReceivedCondition(string username, string password, string domain)
             : base("Pop3 email received condition") {
@@ -21,7 +22,7 @@ namespace Imbick.Assistant.Core.Conditions {
             _algorithm = MD5.Create();
         }
 
-        public StepRunResult Run(IDictionary<string, WorkflowParameter> workflowParameter) {
+        public override StepRunResult Run(IDictionary<string, WorkflowParameter> workflowParameter) {
             Connect();
 
             Authenticate();
