@@ -9,9 +9,11 @@ namespace Imbick.Assistant.Core {
         private bool _enabled;
         private Logger _logger;
         private readonly int _interval;
+        private readonly Timer _timer;
 
         public WorkflowRunner(int interval) {
             _interval = interval;
+            _timer = new Timer(_interval);
         }
 
         public void Register(Workflow workflow) {
@@ -21,24 +23,26 @@ namespace Imbick.Assistant.Core {
         }
 
         private void Process(object sender, ElapsedEventArgs args) {
-            if (!_enabled)
+            if (!_enabled) {
+                _timer.Enabled = false;
+                _timer.Stop();
                 return;
+            }
 
+            _timer.Enabled = true;
+            _timer.Stop();
             foreach (var workflow in _workflows) {
                 _logger.Debug($"Running workflow '{workflow.Name}' consisting of {workflow.Steps.Count} steps.");
                 workflow.Run();
             }
+            _timer.Start();
         }
 
         public void RunAllWorkflows() {
             _logger.Info($"Running all workflows at {_interval}ms intervals.");
 
-            using (var timer = new Timer(_interval)) {
-                timer.Elapsed += Process;
-                timer.Enabled = true;
-
-                while (_enabled) { }
-            }
+            _timer.Elapsed += Process;
+            _timer.Enabled = true;
         }
 
     }
