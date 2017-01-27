@@ -1,5 +1,6 @@
 namespace Imbick.Assistant.Core {
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Newtonsoft.Json;
     using StackExchange.Redis;
@@ -49,6 +50,12 @@ namespace Imbick.Assistant.Core {
                     return true;
             }
             return false;
+        }
+
+        public async Task<List<T>> GetList<T>(string key) {
+            var value = await _redisConnection.GetDatabase().ListRangeAsync(key, 0, -1);
+            return JsonConvert.DeserializeObject<T>(value.ToString());
+
         }
     }
 }

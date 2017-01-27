@@ -5,10 +5,10 @@ namespace Imbick.Assistant.Core.Steps.Conditions {
     using Steps;
     using Steps.Samplers;
 
-    public class MinecraftPlayerConnectedCondition
-        : Condition {
+    public class MinecraftPlayerConnectedConditionStep
+        : ConditionStep {
 
-        public MinecraftPlayerConnectedCondition(IState state)
+        public MinecraftPlayerConnectedConditionStep(IState state)
         :base("Minecraft player connected condition") {
             _state = state;
         }

@@ -1,9 +1,9 @@
 ﻿namespace Imbick.Assistant.Core.Steps.Conditions {
     using Steps;
 
-    public abstract class Condition
+    public abstract class ConditionStep
         : Step {
-        protected Condition(string name)
+        protected ConditionStep(string name)
             : base(name) {
             
         }

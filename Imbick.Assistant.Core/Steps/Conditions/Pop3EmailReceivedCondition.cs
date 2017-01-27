@@ -8,10 +8,10 @@ namespace Imbick.Assistant.Core.Steps.Conditions {
     using System.Text;
     using Steps;
 
-    public class Pop3EmailReceivedCondition
-        : Condition, IDisposable {
+    public class Pop3EmailReceivedConditionStep
+        : ConditionStep, IDisposable {
 
-        public Pop3EmailReceivedCondition(string username, string password, string domain)
+        public Pop3EmailReceivedConditionStep(string username, string password, string domain)
             : base("Pop3 email received condition") {
             _username = username;
             _password = password;

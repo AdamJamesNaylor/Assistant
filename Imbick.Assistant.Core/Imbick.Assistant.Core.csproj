@@ -55,6 +55,9 @@
   <ItemGroup>
     <Compile Include="AnswerMessageTraverser.cs" />
     <Compile Include="AttachmentFinder.cs" />
+    <Compile Include="Commands\CommandArgument.cs" />
+    <Compile Include="Commands\OutboundCommand.cs" />
+    <Compile Include="Steps\Actions\RaiseNotificationAction.cs" />
     <Compile Include="Steps\Conditions\MinecraftPlayerConnectedCondition.cs" />
     <Compile Include="TimeSpanExtensions.cs" />
     <Compile Include="Encoding\Base64.cs" />
@@ -92,7 +95,7 @@
     <Compile Include="Steps\Conditions\StringEqualsCondition.cs" />
     <Compile Include="StringExtensions.cs" />
     <Compile Include="TextVersionFinder.cs" />
-    <Compile Include="Steps\Conditions\Condition.cs" />
+    <Compile Include="Steps\Conditions\ConditionStep.cs" />
     <Compile Include="Steps\Samplers\MinecraftServerListPingSampler.cs" />
     <Compile Include="Workflow.cs" />
     <Compile Include="WorkflowParameter.cs" />

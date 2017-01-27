@@ -22,16 +22,16 @@ namespace Imbick.Assistant.Service {
             var workflow = new Workflow("Check if Imbick is connected to mc.selea.se.");
 
             const int fiveSecondsInMilliseconds = 5000;
-            var fiveSecondInterval = new IntervalCondition(TimeSpan.FromMilliseconds(fiveSecondsInMilliseconds));
+            var fiveSecondInterval = new IntervalConditionStep(TimeSpan.FromMilliseconds(fiveSecondsInMilliseconds));
             workflow.AddStep(fiveSecondInterval);
 
             var mcSampler = new MinecraftServerListPingSampler("mc.selea.se");
             workflow.AddStep(mcSampler);
 
-            var playerConnected = new MinecraftPlayerConnectedCondition(new RedisStateProvider("localhost"));
+            var playerConnected = new MinecraftPlayerConnectedConditionStep(new RedisStateProvider("localhost"));
             workflow.AddStep(playerConnected);
 
-            var isMe = new StringEqualsCondition("MinecraftPlayerConnected", "Imbick");
+            var isMe = new StringEqualsConditionStep("MinecraftPlayerConnected", "Imbick");
             workflow.AddStep(isMe);
 
             var printSuccess = new WriteStringToConsoleAction("Found Imbick!");

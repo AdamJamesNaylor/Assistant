@@ -2,10 +2,10 @@
     using System.Collections.Generic;
     using Steps;
 
-    public class StringEqualsCondition
-        : Condition {
+    public class StringEqualsConditionStep
+        : ConditionStep {
 
-        public StringEqualsCondition(string paramName, string operand)
+        public StringEqualsConditionStep(string paramName, string operand)
             : base("String equals condition") {
             _paramName = paramName;
             _operand = operand;

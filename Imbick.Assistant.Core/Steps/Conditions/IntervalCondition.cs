@@ -4,10 +4,10 @@
     using NLog;
     using Steps;
 
-    public class IntervalCondition
-        : Condition {
+    public class IntervalConditionStep
+        : ConditionStep {
 
-        public IntervalCondition(TimeSpan interval)
+        public IntervalConditionStep(TimeSpan interval)
             : base($"{interval.ToReadableString()} interval condition") {
             _interval = interval;
             _lastFired = DateTime.Now;
