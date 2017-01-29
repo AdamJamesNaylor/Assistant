@@ -1,6 +1,7 @@
 ﻿
 namespace Imbick.Assistant.Core {
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
 
     public interface IState {
@@ -11,5 +12,7 @@ namespace Imbick.Assistant.Core {
         void ListSetByIndex<T>(string key, long index, T value);
         void ListRemove<T>(string key, long count, T value);
         Task<bool> ListContains<T>(string key, T value, Func<T, T, bool> comparison);
+        void ListAdd(string key, string value);
+        Task<List<T>> GetList< T>(string key);
     }
 }

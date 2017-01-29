@@ -2,22 +2,32 @@
 {
     using System;
     using System.Collections.Generic;
+    using Commands;
+    using Newtonsoft.Json;
+    using SmartFormat;
 
-    class RaiseNotificationAction
+    public class RaiseNotificationAction
         : ActionStep {
         private readonly IState _state;
         private readonly IEnumerable<Guid> _deviceIds;
+        private readonly string _messageFormat;
 
-        public RaiseNotificationAction(IState state, IEnumerable<Guid> deviceIds)
+        public RaiseNotificationAction(IState state, IEnumerable<Guid> deviceIds, string messageFormat)
             : base("Raise notification action") {
             _state = state;
             _deviceIds = deviceIds;
+            _messageFormat = messageFormat;
         }
 
         public override StepRunResult Run(IDictionary<string, WorkflowParameter> workflowParameters) {
+            var message = Smart.Format(_messageFormat, workflowParameters);
             foreach (var deviceId in _deviceIds) {
-                _state.S
+                var command = new RaiseNotificationCommand(message);
+                var serialisedCommand = JsonConvert.SerializeObject(command);
+                _state.Set(deviceId.ToString(), serialisedCommand);
             }
+            return new StepRunResult();
         }
     }
+
 }

@@ -11,11 +11,11 @@
             _operand = operand;
         }
 
-        public override StepRunResult Run(IDictionary<string, WorkflowParameter> workflowParameter) {
-            var triggerParam = workflowParameter[_paramName];
+        public override StepRunResult Run(IDictionary<string, WorkflowParameter> workflowParameters) {
+            var triggerParam = workflowParameters[_paramName];
             if (triggerParam.Type != typeof (string))
                 throw new InvalidWorkflowParameterTypeException(triggerParam, typeof (string));
-            var result = (string) workflowParameter[_paramName].Value == _operand;
+            var result = (string) workflowParameters[_paramName].Value == _operand;
             return new StepRunResult(result);
         }
 

@@ -2,6 +2,14 @@
     using System;
     using System.Collections.Generic;
 
+    public class RaiseNotificationCommand {
+        public string Message { get; set; }
+
+        public RaiseNotificationCommand(string message) {
+            Message = message;
+        }
+    }
+
     public class OutboundCommand {
         public OutboundCommand() {
             Arguments = new List<CommandArgument>();

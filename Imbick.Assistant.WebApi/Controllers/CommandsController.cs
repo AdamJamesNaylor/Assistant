@@ -10,6 +10,7 @@ namespace Imbick.Assistant.WebApi.Controllers {
     using Core.Commands;
     using Newtonsoft.Json;
 
+    [RoutePrefix("commands")]
     public class CommandsController
         : ApiController {
 
@@ -17,10 +18,15 @@ namespace Imbick.Assistant.WebApi.Controllers {
             _state = state;
         }
 
+        public CommandsController() {
+            _state = new RedisStateProvider("localhost");
+        }
+
         [HttpGet]
+        [Route("list/{deviceId}")]
         public async Task<JsonResult<IEnumerable<OutboundCommand>>> List(Guid deviceId) {
             var serialisedCommands = await _state.Get(deviceId.ToString());
-            var deserialisedCommands = JsonConvert.DeserializeObject<IEnumerable<OutboundCommand>>(serialisedCommands);
+            var deserialisedCommands = JsonConvert.DeserializeObject<List<OutboundCommand>>(serialisedCommands);
             var pendingCommands = deserialisedCommands.Where(c => !c.Processed);
             return Json(pendingCommands);
         }

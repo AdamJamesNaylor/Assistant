@@ -2,6 +2,7 @@
 namespace Imbick.Assistant.Core.Steps.Conditions {
     using System.Collections.Generic;
     using System.Linq;
+    using Newtonsoft.Json;
     using Steps;
     using Steps.Samplers;
 
@@ -14,28 +15,45 @@ namespace Imbick.Assistant.Core.Steps.Conditions {
         }
 
         public override StepRunResult Run(IDictionary<string, WorkflowParameter> workflowParameters) {
-            if (!workflowParameters.ContainsKey("MinecraftServerPlayers"))
-                return new StepRunResult(false);
-
-            var param = workflowParameters["MinecraftServerPlayers"];
-            if (param.Type != typeof (MinecraftPlayer[]))
+            WorkflowParameter param = null;
+            if (!AnyPlayersConnected(workflowParameters, out param))
                 return new StepRunResult(false);
 
             var currentlyConnectedPlayers = ((MinecraftPlayer[])param.Value).ToList();
-            foreach (var currentlyConnectedPlayer in currentlyConnectedPlayers.Where(currentlyConnectedPlayer => !WasPreviouslyConnected(currentlyConnectedPlayer))) {
-                workflowParameters.Add("MinecraftPlayerConnected", new WorkflowParameter<string>("MinecraftPlayerConnected", currentlyConnectedPlayer.Name));
-                return new StepRunResult();
-            }
 
-            //stop tracking any disconnected players
+            UntrackOldPlayers(currentlyConnectedPlayers);
+
+            var newlyConnectedPlayers = currentlyConnectedPlayers.Where(currentlyConnectedPlayer => !WasPreviouslyConnected(currentlyConnectedPlayer)).ToList();
+            if (!newlyConnectedPlayers.Any())
+                return new StepRunResult(false);
+
+            var firstNewPlayer = newlyConnectedPlayers.First();
+            workflowParameters.Add("MinecraftPlayerConnected", new WorkflowParameter<string>("MinecraftPlayerConnected", firstNewPlayer.Name));
+            TrackNewPlayer(firstNewPlayer);
+            return new StepRunResult();
+        }
+
+        private bool AnyPlayersConnected(IDictionary<string, WorkflowParameter> workflowParameters, out WorkflowParameter param) {
+            param = null;
+            if (!workflowParameters.ContainsKey("MinecraftServerPlayers"))
+                return false;
+            
+            param = workflowParameters["MinecraftServerPlayers"];
+            return param.Type == typeof (MinecraftPlayer[]);
+        }
+
+        private void TrackNewPlayer(MinecraftPlayer firstNewPlayer) {
+            var serialisedNewPlayer = JsonConvert.SerializeObject(firstNewPlayer);
+            _state.ListAdd("MinecraftServerPlayers", serialisedNewPlayer);
+        }
+
+        private void UntrackOldPlayers(ICollection<MinecraftPlayer> currentlyConnectedPlayers) {
             var listLength = _state.ListLength("MinecraftServerPlayers").Result;
             for (var i = 0; i < listLength; i++) {
                 var previouslyConnectedPlayer = _state.ListGetByIndex<MinecraftPlayer>("MinecraftServerPlayers", i).Result;
-                if (!currentlyConnectedPlayers.Contains(previouslyConnectedPlayer))
+                if (currentlyConnectedPlayers.All(p => p.Id != previouslyConnectedPlayer.Id))
                     _state.ListRemove("MinecraftServerPlayers", 1, previouslyConnectedPlayer);
             }
-
-            return new StepRunResult(false);
         }
 
         private bool WasPreviouslyConnected(MinecraftPlayer currentlyConnectedPlayer) {
