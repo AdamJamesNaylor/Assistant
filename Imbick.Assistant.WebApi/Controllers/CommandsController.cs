@@ -25,14 +25,15 @@ namespace Imbick.Assistant.WebApi.Controllers {
         [HttpGet]
         [Route("list/{deviceId}")]
         public async Task<JsonResult<IEnumerable<OutboundCommand>>> List(Guid deviceId) {
-            var serialisedCommands = await _state.Get(deviceId.ToString());
-            var deserialisedCommands = JsonConvert.DeserializeObject<List<OutboundCommand>>(serialisedCommands);
-            var pendingCommands = deserialisedCommands.Where(c => !c.Processed);
+            var commands = await _state.GetList<OutboundCommand>(deviceId.ToString());
+            var pendingCommands = commands.Where(c => !c.Processed);
             return Json(pendingCommands);
         }
 
         [HttpPut]
         public async Task<JsonResult<OutboundCommand>> Update(OutboundCommand command) {
+            var serialisedCommand = JsonConvert.SerializeObject(command);
+            //_state.Set(deviceId.ToString())
             return null;
         }
 

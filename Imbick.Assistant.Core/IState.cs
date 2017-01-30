@@ -13,6 +13,6 @@ namespace Imbick.Assistant.Core {
         void ListRemove<T>(string key, long count, T value);
         Task<bool> ListContains<T>(string key, T value, Func<T, T, bool> comparison);
         void ListAdd(string key, string value);
-        Task<List<T>> GetList< T>(string key);
+        Task<List<T>> GetList<T>(string key);
     }
 }

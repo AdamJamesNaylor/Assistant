@@ -24,7 +24,7 @@
             foreach (var deviceId in _deviceIds) {
                 var command = new RaiseNotificationCommand(message);
                 var serialisedCommand = JsonConvert.SerializeObject(command);
-                _state.Set(deviceId.ToString(), serialisedCommand);
+                _state.ListAdd(deviceId.ToString(), serialisedCommand);
             }
             return new StepRunResult();
         }
