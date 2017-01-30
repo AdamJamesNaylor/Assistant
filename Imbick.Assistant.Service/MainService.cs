@@ -1,17 +1,15 @@
 ﻿
 namespace Imbick.Assistant.Service {
-    using Core;
     using System;
+    using Core;
     using System.ServiceProcess;
-    using Core.Commands;
-    using Core.Steps.Actions;
-    using Core.Steps.Conditions;
-    using Core.Steps.Samplers;
+    using NLog;
 
     public partial class MainService
         : ServiceBase {
 
         public MainService() {
+            _logger = LogManager.GetCurrentClassLogger();
             InitializeComponent();
         }
 
@@ -20,36 +18,25 @@ namespace Imbick.Assistant.Service {
         }
 
         private void Start() {
-            var adamsPhone = Guid.Parse("ef57afc0-9fea-45fc-93c9-a0ec8ada8546");
+            _logger.Info("Service starting.");
+            AppDomain currentDomain = AppDomain.CurrentDomain;
+            currentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
-            var workflow = new Workflow("Check if Imbick is connected to mc.selea.se.");
-
-            const int fiveSecondsInMilliseconds = 5000;
-            var fiveSecondInterval = new IntervalConditionStep(TimeSpan.FromMilliseconds(fiveSecondsInMilliseconds));
-            workflow.AddStep(fiveSecondInterval);
-
-            var minecraftHost = "mc.selea.se";
-            var mcSampler = new MinecraftServerListPingSampler(minecraftHost);
-            workflow.AddStep(mcSampler);
-
-            var redisStateProvider = new RedisStateProvider("localhost");
-            var playerConnected = new MinecraftPlayerConnectedConditionStep(redisStateProvider);
-            workflow.AddStep(playerConnected);
-
-            //var notMe = new StringDoesNotEqualCondition("MinecraftPlayerConnected", "Imbick");
-            //workflow.AddStep(notMe);
-
-            //var printSuccess = new WriteStringToConsoleAction("Found Imbick!");
-            var raiseNotification = new RaiseNotificationAction(redisStateProvider, new [] { adamsPhone }, "Player {MinecraftPlayerConnected} has just joined " + minecraftHost);
-            workflow.AddStep(raiseNotification);
-
+            var configurator = new WorkflowConfigurator();
+            var workflows = configurator.GetWorkflows();
             var runner = new WorkflowRunner(100);
-            runner.Register(workflow);
+            runner.Register(workflows);
             runner.RunAllWorkflows();
+        }
 
+        private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs args) {
+            _logger.Error(args.ExceptionObject);
         }
 
         protected override void OnStop() {
+            _logger.Info("Service stopping.");
         }
+
+        private readonly Logger _logger;
     }
 }

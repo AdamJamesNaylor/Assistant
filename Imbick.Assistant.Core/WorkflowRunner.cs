@@ -16,18 +16,21 @@ namespace Imbick.Assistant.Core {
             _timer = new Timer(_interval);
         }
 
-        public void Register(Workflow workflow) {
-            _workflows.Add(workflow);
+        public void Register(IEnumerable<Workflow> workflows) {
+            _workflows.AddRange(workflows);
             _enabled = true;
             _logger = LogManager.GetCurrentClassLogger();
         }
 
         private void Process(object sender, ElapsedEventArgs args) {
             if (!_enabled) {
+                _logger.Trace("Runner disabled, not processing.");
+
                 _timer.Enabled = false;
                 _timer.Stop();
                 return;
             }
+            _logger.Trace("Runner enabled, processing.");
 
             _timer.Enabled = true;
             _timer.Stop();

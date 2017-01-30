@@ -5,8 +5,6 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imbick.Assistant.WebApi", "Imbick.Assistant.WebApi\Imbick.Assistant.WebApi.csproj", "{0911F23C-6719-490A-9E49-525118806817}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp1", "ConsoleApp1\ConsoleApp1.csproj", "{ABB702E2-FEA9-4FE3-884D-CB6E2FB83320}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imbick.Assistant.Core", "Imbick.Assistant.Core\Imbick.Assistant.Core.csproj", "{BE0C578B-1E61-4ACF-B77B-B671C2668EC0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imbick.Assistant.Service", "Imbick.Assistant.Service\Imbick.Assistant.Service.csproj", "{6851DD81-9808-419D-907B-1F6D823F5A3F}"
@@ -30,10 +28,6 @@ Global
 		{0911F23C-6719-490A-9E49-525118806817}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0911F23C-6719-490A-9E49-525118806817}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0911F23C-6719-490A-9E49-525118806817}.Release|Any CPU.Build.0 = Release|Any CPU
-		{ABB702E2-FEA9-4FE3-884D-CB6E2FB83320}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{ABB702E2-FEA9-4FE3-884D-CB6E2FB83320}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{ABB702E2-FEA9-4FE3-884D-CB6E2FB83320}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{ABB702E2-FEA9-4FE3-884D-CB6E2FB83320}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BE0C578B-1E61-4ACF-B77B-B671C2668EC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BE0C578B-1E61-4ACF-B77B-B671C2668EC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BE0C578B-1E61-4ACF-B77B-B671C2668EC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
