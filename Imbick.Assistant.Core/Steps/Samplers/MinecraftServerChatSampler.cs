@@ -1,59 +1,54 @@
-namespace Imbick.Assistant.Core.Steps.Samplers
-{
+namespace Imbick.Assistant.Core.Steps.Samplers {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using Newtonsoft.Json;
     using Steps;
     using System.Net.Http;
     using System.Threading.Tasks;
 
-    public class MinecraftChatMessage
-    {
+    public class MinecraftChatMessage {
         public string Name { get; set; }
         public string Message { get; set; }
     }
 
     public class MinecraftServerChatSampler
-        : Step
-    {
-        private HttpClient _client;
-        private readonly string _host;
+        : Step {
 
-        public MinecraftServerChatSampler(string host)
-            : base("Minecraft server chat sampler")
-        {
+        public MinecraftServerChatSampler(string host, IState state)
+            : base("Minecraft server chat sampler") {
             _host = host;
-            _client = new HttpClient();
-            _client.BaseAddress = new Uri(_host);
+            _state = state;
+            _client = new HttpClient {
+                BaseAddress = new Uri(_host)
+            };
         }
 
-        public override async Task<StepRunResult> Run(IDictionary<string, WorkflowParameter> workflowParameters)
-        {
+        public override async Task<StepRunResult> Run(IDictionary<string, WorkflowParameter> workflowParameters) {
             var response = await _client.GetAsync("/up/world/world/1234");
             if (!response.IsSuccessStatusCode)
                 return new StepRunResult(false);
 
             var serialisedResponse = await response.Content.ReadAsStringAsync();
             var dynMapResponse = JsonConvert.DeserializeObject<DynMapResponse>(serialisedResponse);
-            foreach (var update in dynMapResponse.updates)
-            {
-                if (update.type == "chat")
-                {
-                    var message = new MinecraftChatMessage
-                    {
-                        Message = update.message,
-                        Name = update.name
-                    };
-                    //todo record
-                }
+            foreach (var update in dynMapResponse.updates.Where(u => u.type == "chat")) {
+                var message = new MinecraftChatMessage {
+                    Message = update.message,
+                    Name = update.name
+                };
+                var serialisedMessage = JsonConvert.SerializeObject(message);
+                _state.ListAdd("MinecraftChat", serialisedMessage);
             }
 
             return new StepRunResult();
         }
+
+        private readonly HttpClient _client;
+        private readonly string _host;
+        private readonly IState _state;
     }
 
-    public class DynMapResponsePlayer
-    {
+    public class DynMapResponsePlayer {
         public string world { get; set; }
         public int armor { get; set; }
         public string name { get; set; }
@@ -66,8 +61,7 @@ namespace Imbick.Assistant.Core.Steps.Samplers
         public string account { get; set; }
     }
 
-    public class DynMapResponseUpdate
-    {
+    public class DynMapResponseUpdate {
         public string type { get; set; }
         public string name { get; set; }
         public object timestamp { get; set; }
@@ -92,8 +86,7 @@ namespace Imbick.Assistant.Core.Steps.Samplers
         public string channel { get; set; }
     }
 
-    public class DynMapResponse
-    {
+    public class DynMapResponse {
         public int currentcount { get; set; }
         public bool hasStorm { get; set; }
         public List<DynMapResponsePlayer> players { get; set; }

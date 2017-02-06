@@ -7,36 +7,63 @@ namespace Imbick.Assistant.Service {
     using Core.Steps.Samplers;
 
     public class WorkflowConfigurator {
+        private IntervalConditionStep _fiveSecondInterval;
+        private string _minecraftHost = "mc.selea.se";
+        private RedisStateProvider _redisStateProvider = new RedisStateProvider("localhost");
+
         public IEnumerable<Workflow> GetWorkflows() {
+            const int fiveSecondsInMilliseconds = 5000;
+            _fiveSecondInterval = new IntervalConditionStep(TimeSpan.FromMilliseconds(fiveSecondsInMilliseconds));
+
+            var workflow1 = BuildPlayerConnectedWorkflow();
+
+            var workflow2 = BuildTravelEmailWorkflow();
+
+            var workflow3 = BuildMinecraftChatWorkflow();
+
+            return new[] { workflow3 };
+        }
+
+        private Workflow BuildMinecraftChatWorkflow() {
+            const int oneSecondsInMilliseconds = 1000;
+            var oneSecondInterval = new IntervalConditionStep(TimeSpan.FromMilliseconds(oneSecondsInMilliseconds));
+
+            var workflow = new Workflow("Respond to chat messages.");
+            workflow.AddStep(oneSecondInterval);
+            var chatSampler = new MinecraftServerChatSampler(_minecraftHost, _redisStateProvider);
+            workflow.AddStep(chatSampler);
+            return workflow;
+        }
+
+        private Workflow BuildTravelEmailWorkflow() {
+            var workflow2 = new Workflow("Check if travel has been authorised.");
+            workflow2.AddStep(_fiveSecondInterval);
+            var exchangeSampler = new ExchangeEmailSampler("", "", "");
+            workflow2.AddStep(exchangeSampler);
+            return workflow2;
+        }
+
+        private Workflow BuildPlayerConnectedWorkflow() {
             var adamsPhone = Guid.Parse("ef57afc0-9fea-45fc-93c9-a0ec8ada8546");
 
             var workflow1 = new Workflow("Check if Imbick is connected to mc.selea.se.");
 
-            const int fiveSecondsInMilliseconds = 5000;
-            var fiveSecondInterval = new IntervalConditionStep(TimeSpan.FromMilliseconds(fiveSecondsInMilliseconds));
-            workflow1.AddStep(fiveSecondInterval);
+            workflow1.AddStep(_fiveSecondInterval);
 
-            var minecraftHost = "mc.selea.se";
-            var mcSampler = new MinecraftServerListPingSampler(minecraftHost);
+            var mcSampler = new MinecraftServerListPingSampler(_minecraftHost);
             workflow1.AddStep(mcSampler);
 
-            var redisStateProvider = new RedisStateProvider("localhost");
-            var playerConnected = new MinecraftPlayerConnectedConditionStep(redisStateProvider);
+            var playerConnected = new MinecraftPlayerConnectedConditionStep(_redisStateProvider);
             workflow1.AddStep(playerConnected);
 
             //var notMe = new StringDoesNotEqualCondition("MinecraftPlayerConnected", "Imbick");
             //workflow.AddStep(notMe);
 
             //var printSuccess = new WriteStringToConsoleAction("Found Imbick!");
-            var raiseNotification = new RaiseNotificationAction(redisStateProvider, new[] { adamsPhone }, "Player {MinecraftPlayerConnected} has just joined " + minecraftHost);
+            var raiseNotification = new RaiseNotificationAction(_redisStateProvider, new[] {adamsPhone},
+                "Player {MinecraftPlayerConnected} has just joined " + _minecraftHost);
             workflow1.AddStep(raiseNotification);
-
-            var workflow2 = new Workflow("Check if travel has been authorised.");
-            workflow2.AddStep(fiveSecondInterval);
-            var exchangeSampler = new ExchangeEmailSampler("","","");
-            workflow2.AddStep(exchangeSampler);
-
-            return new[] { workflow2};
+            return workflow1;
         }
     }
 }

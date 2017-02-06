@@ -70,6 +70,7 @@
     <Compile Include="Commands\CommandArgument.cs" />
     <Compile Include="Commands\OutboundCommand.cs" />
     <Compile Include="Steps\Actions\RaiseNotificationAction.cs" />
+    <Compile Include="Steps\Branching\SwitchBranchStep.cs" />
     <Compile Include="Steps\Conditions\MinecraftPlayerConnectedCondition.cs" />
     <Compile Include="Steps\Conditions\StringDoesNotEqualCondition.cs" />
     <Compile Include="Steps\Samplers\ExchangeEmailSampler.cs" />
