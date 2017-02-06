@@ -73,6 +73,7 @@
     <Compile Include="Steps\Conditions\MinecraftPlayerConnectedCondition.cs" />
     <Compile Include="Steps\Conditions\StringDoesNotEqualCondition.cs" />
     <Compile Include="Steps\Samplers\ExchangeEmailSampler.cs" />
+    <Compile Include="Steps\Samplers\MinecraftServerChatSampler.cs" />
     <Compile Include="TimeSpanExtensions.cs" />
     <Compile Include="Encoding\Base64.cs" />
     <Compile Include="Encoding\ContentTransferEncoding.cs" />

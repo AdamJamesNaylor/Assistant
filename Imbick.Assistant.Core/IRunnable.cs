@@ -2,8 +2,9 @@
 {
     using System.Collections.Generic;
     using Steps;
+    using System.Threading.Tasks;
 
     public interface IRunnable {
-        StepRunResult Run(IDictionary<string, WorkflowParameter> workflowParameters);
+        Task<StepRunResult> Run(IDictionary<string, WorkflowParameter> workflowParameters);
     }
 }
