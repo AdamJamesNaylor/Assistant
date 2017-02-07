@@ -3,6 +3,7 @@ namespace Imbick.Assistant.Service {
     using System.Collections.Generic;
     using Core;
     using Core.Steps.Actions;
+    using Core.Steps.Branching;
     using Core.Steps.Conditions;
     using Core.Steps.Samplers;
 
@@ -30,8 +31,17 @@ namespace Imbick.Assistant.Service {
 
             var workflow = new Workflow("Respond to chat messages.");
             workflow.AddStep(oneSecondInterval);
+
             var chatSampler = new MinecraftServerChatSampler(_minecraftHost, _redisStateProvider);
             workflow.AddStep(chatSampler);
+
+            var switchStep = new SwitchBranchStep();
+            var case1 = new SwitchCase {
+                Name = "Hello"
+            };
+            case1.Conditions.Add(new StringEqualsConditionStep("", "hello"));
+            switchStep.Cases.Add(case1);
+
             return workflow;
         }
 

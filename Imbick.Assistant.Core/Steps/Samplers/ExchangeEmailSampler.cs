@@ -2,6 +2,7 @@
 namespace Imbick.Assistant.Core.Steps.Samplers {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using Microsoft.Exchange.WebServices.Data;
     using NLog;
 
@@ -20,14 +21,14 @@ namespace Imbick.Assistant.Core.Steps.Samplers {
             };
         }
 
-        public override StepRunResult Run(IDictionary<string, WorkflowParameter> workflowParameters) {
+        public async override Task<RunResult> Run(IDictionary<string, WorkflowParameter> workflowParameters) {
             _logger.Trace("ExchangeEmailSampler running.");
             _exchange.AutodiscoverUrl(_emailAddress); //todo might be able to speed this up by not doing auto discovery
 
             GetEmails();
 
             _logger.Trace("ExchangeEmailSampler returning.");
-            return new StepRunResult();
+            return new RunResult();
         }
 
         private void GetEmails() {

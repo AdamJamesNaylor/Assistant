@@ -10,6 +10,6 @@
             Name = name;
         }
 
-        public abstract Task<StepRunResult> Run(IDictionary<string, WorkflowParameter> workflowParameters);
+        public abstract Task<RunResult> Run(IDictionary<string, WorkflowParameter> workflowParameters);
     }
 }

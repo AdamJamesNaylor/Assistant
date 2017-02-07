@@ -4,6 +4,7 @@ namespace Imbick.Assistant.Core.Steps.Samplers {
     using System.IO;
     using System.Linq;
     using System.Net.Sockets;
+    using System.Threading.Tasks;
     using Newtonsoft.Json;
     using Steps;
 
@@ -30,11 +31,11 @@ namespace Imbick.Assistant.Core.Steps.Samplers {
             _offset = 0;
         }
 
-        public override StepRunResult Run(IDictionary<string, WorkflowParameter> workflowParameters) {
+        public async override Task<RunResult> Run(IDictionary<string, WorkflowParameter> workflowParameters) {
 
             using (_client = new TcpClient()) {
                 if (!Connect())
-                    return new StepRunResult(false);
+                    return new RunResult(false);
 
                 SendHandshakePacket();
 
@@ -63,11 +64,11 @@ namespace Imbick.Assistant.Core.Steps.Samplers {
                 } catch (IOException) {
                     //If an IOException is thrown then the server didn't 
                     //send us a VarInt or sent us an invalid one.
-                    return new StepRunResult(false);
+                    return new RunResult(false);
                 } finally {
                     Disconnect();
                 }
-                return new StepRunResult();
+                return new RunResult();
             }
         }
 

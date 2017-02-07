@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using Commands;
     using Newtonsoft.Json;
     using SmartFormat;
@@ -19,14 +20,14 @@
             _messageFormat = messageFormat;
         }
 
-        public override StepRunResult Run(IDictionary<string, WorkflowParameter> workflowParameters) {
+        public async override Task<RunResult> Run(IDictionary<string, WorkflowParameter> workflowParameters) {
             var message = Smart.Format(_messageFormat, workflowParameters);
             foreach (var deviceId in _deviceIds) {
                 var command = new RaiseNotificationCommand(message);
                 var serialisedCommand = JsonConvert.SerializeObject(command);
                 _state.ListAdd(deviceId.ToString(), serialisedCommand);
             }
-            return new StepRunResult();
+            return new RunResult();
         }
     }
 

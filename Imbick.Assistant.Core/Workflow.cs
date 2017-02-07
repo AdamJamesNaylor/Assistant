@@ -1,26 +1,30 @@
 ﻿namespace Imbick.Assistant.Core {
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using NLog;
     using Steps;
 
-    public class Workflow {
+    public class Workflow
+        : IRunnable {
         public string Name { get; }
         public IReadOnlyCollection<Step> Steps => _steps.AsReadOnly();
 
         public Workflow(string name) {
             Name = name;
-            _steps = new List<Step>();
+            _steps = new StepCollection();
             _parameters = new Dictionary<string, WorkflowParameter>();
             _logger = LogManager.GetCurrentClassLogger();
         }
 
-        public void Run() {
+        public async Task<RunResult> Run(IDictionary<string, WorkflowParameter> workflowParameters = null)
+        {
             foreach (var step in Steps) {
-                var result = step.Run(_parameters);
+                var result = await step.Run(_parameters);
                 if (!result.Continue)
                     break;
             }
             _parameters.Clear();
+            return null;
         }
 
         public void AddStep(Step step) {
@@ -29,7 +33,7 @@
         }
 
         private readonly Dictionary<string, WorkflowParameter> _parameters;
-        private readonly List<Step> _steps;
+        private readonly StepCollection _steps;
         private readonly Logger _logger;
     }
 }

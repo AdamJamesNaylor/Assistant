@@ -5,6 +5,6 @@
     using System.Threading.Tasks;
 
     public interface IRunnable {
-        Task<StepRunResult> Run(IDictionary<string, WorkflowParameter> workflowParameters);
+        Task<RunResult> Run(IDictionary<string, WorkflowParameter> workflowParameters);
     }
 }

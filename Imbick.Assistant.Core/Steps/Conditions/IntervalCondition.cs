@@ -1,6 +1,7 @@
 ﻿namespace Imbick.Assistant.Core.Steps.Conditions {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using NLog;
     using Steps;
 
@@ -14,17 +15,17 @@
             _logger = LogManager.GetCurrentClassLogger();
         }
 
-        public override StepRunResult Run(IDictionary<string, WorkflowParameter> workflowParameter) {
+        public async override Task<RunResult> Run(IDictionary<string, WorkflowParameter> workflowParameter) {
             _logger.Trace($"IntervalCondition running with {_interval.Milliseconds}ms interval. Last fired {_lastFired}.");
 
             var now = DateTime.Now;
             if (_lastFired + _interval > now) {
-                return new StepRunResult(false);
+                return new RunResult(false);
             }
 
             _logger.Debug($"IntervalCondition met after {_interval.Milliseconds}ms interval.");
             _lastFired = now;
-            return new StepRunResult();
+            return new RunResult();
         }
 
         private readonly TimeSpan _interval;

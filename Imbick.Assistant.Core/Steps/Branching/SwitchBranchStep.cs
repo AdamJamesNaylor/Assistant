@@ -3,13 +3,6 @@ namespace Imbick.Assistant.Core.Steps.Branching
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Conditions;
-
-    public class SwitchCase {
-        public string Name { get; set; }
-        public List<ConditionStep> Conditions { get; set; }
-        public List<Step> Steps { get; set; } 
-    }
 
     public class SwitchBranchStep
         : Step {
@@ -20,10 +13,23 @@ namespace Imbick.Assistant.Core.Steps.Branching
             : base("Switch branch step") {
         }
 
-        public override Task<StepRunResult> Run(IDictionary<string, WorkflowParameter> workflowParameters) {
+        public async override Task<RunResult> Run(IDictionary<string, WorkflowParameter> workflowParameters) {
             foreach (var @case in Cases) {
-                
+                var allConditionsSatisfied = true;
+                foreach (var condition in @case.Conditions) {
+                    var conditionResult = await condition.Run(workflowParameters);
+                    if (!conditionResult.Continue) {
+                        allConditionsSatisfied = false;
+                        break;
+                    }
+                }
+
+                if (allConditionsSatisfied) {
+                    return await @case.Steps.Run(workflowParameters);
+                }
             }
+
+            return RunResult.Failed;
         }
     }
 }

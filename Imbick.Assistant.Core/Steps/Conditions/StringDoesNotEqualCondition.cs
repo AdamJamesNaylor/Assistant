@@ -1,5 +1,6 @@
 ﻿namespace Imbick.Assistant.Core.Steps.Conditions {
     using System.Collections.Generic;
+    using System.Threading.Tasks;
 
     public class StringDoesNotEqualCondition
         : ConditionStep {
@@ -12,12 +13,12 @@
             _operand = operand;
         }
 
-        public override StepRunResult Run(IDictionary<string, WorkflowParameter> workflowParameters) {
+        public async override Task<RunResult> Run(IDictionary<string, WorkflowParameter> workflowParameters) {
             var triggerParam = workflowParameters[_paramName];
             if (triggerParam.Type != typeof(string))
                 throw new InvalidWorkflowParameterTypeException(triggerParam, typeof(string));
             var result = (string)workflowParameters[_paramName].Value != _operand;
-            return new StepRunResult(result);
+            return new RunResult(result);
         }
     }
 }

@@ -70,6 +70,10 @@
     <Compile Include="Commands\CommandArgument.cs" />
     <Compile Include="Commands\OutboundCommand.cs" />
     <Compile Include="Steps\Actions\RaiseNotificationAction.cs" />
+    <Compile Include="Steps\Branching\SwitchCase.cs" />
+    <Compile Include="ValueResolvers\WorkflowParameterValueResolver.cs" />
+    <Compile Include="Steps\Loops\ForeachLoopStep.cs" />
+    <Compile Include="Steps\StepCollection.cs" />
     <Compile Include="Steps\Branching\SwitchBranchStep.cs" />
     <Compile Include="Steps\Conditions\MinecraftPlayerConnectedCondition.cs" />
     <Compile Include="Steps\Conditions\StringDoesNotEqualCondition.cs" />
@@ -106,7 +110,7 @@
     <Compile Include="SizeParser.cs" />
     <Compile Include="IState.cs" />
     <Compile Include="Steps\Step.cs" />
-    <Compile Include="Steps\StepRunResult.cs" />
+    <Compile Include="Steps\RunResult.cs" />
     <Compile Include="StreamExtensions.cs" />
     <Compile Include="Steps\Conditions\StringEqualsCondition.cs" />
     <Compile Include="StringExtensions.cs" />

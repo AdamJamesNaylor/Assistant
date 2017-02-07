@@ -15,37 +15,33 @@ namespace Imbick.Assistant.Core.Steps.Samplers {
     public class MinecraftServerChatSampler
         : Step {
 
-        public MinecraftServerChatSampler(string host, IState state)
+        public MinecraftServerChatSampler(string host)
             : base("Minecraft server chat sampler") {
             _host = host;
-            _state = state;
             _client = new HttpClient {
                 BaseAddress = new Uri(_host)
             };
         }
 
-        public override async Task<StepRunResult> Run(IDictionary<string, WorkflowParameter> workflowParameters) {
+        public override async Task<RunResult> Run(IDictionary<string, WorkflowParameter> workflowParameters) {
             var response = await _client.GetAsync("/up/world/world/1234");
             if (!response.IsSuccessStatusCode)
-                return new StepRunResult(false);
+                return new RunResult(false);
 
             var serialisedResponse = await response.Content.ReadAsStringAsync();
             var dynMapResponse = JsonConvert.DeserializeObject<DynMapResponse>(serialisedResponse);
-            foreach (var update in dynMapResponse.updates.Where(u => u.type == "chat")) {
-                var message = new MinecraftChatMessage {
+            var messages =
+                dynMapResponse.updates.Where(u => u.type == "chat").Select(update => new MinecraftChatMessage {
                     Message = update.message,
                     Name = update.name
-                };
-                var serialisedMessage = JsonConvert.SerializeObject(message);
-                _state.ListAdd("MinecraftChat", serialisedMessage);
-            }
+                });
+            workflowParameters["MinecraftChatMessages"] = new WorkflowParameter<IEnumerable<MinecraftChatMessage>>("MinecraftChatMessages", messages);
 
-            return new StepRunResult();
+            return new RunResult();
         }
 
         private readonly HttpClient _client;
         private readonly string _host;
-        private readonly IState _state;
     }
 
     public class DynMapResponsePlayer {

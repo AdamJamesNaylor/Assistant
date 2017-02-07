@@ -1,6 +1,7 @@
 ﻿namespace Imbick.Assistant.Core.Steps.Actions {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using Steps;
 
     public class WriteParameterToConsoleStep
@@ -14,12 +15,12 @@
             _paramName = paramName;
         }
 
-        public StepRunResult Run(IDictionary<string, WorkflowParameter> workflowParameter) {
+        public async Task<RunResult> Run(IDictionary<string, WorkflowParameter> workflowParameter) {
             if (IncludeNewline)
                 Console.WriteLine(workflowParameter[_paramName].Value);
             else
                 Console.Write(workflowParameter[_paramName].Value);
-            return new StepRunResult();
+            return new RunResult();
         }
     }
 }
