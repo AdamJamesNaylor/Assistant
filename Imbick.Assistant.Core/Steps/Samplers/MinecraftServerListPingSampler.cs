@@ -31,7 +31,7 @@ namespace Imbick.Assistant.Core.Steps.Samplers {
             _offset = 0;
         }
 
-        public async override Task<RunResult> Run(IDictionary<string, WorkflowParameter> workflowParameters) {
+        public async override Task<RunResult> Run(WorkflowState workflowState) {
 
             using (_client = new TcpClient()) {
                 if (!Connect())
@@ -54,21 +54,17 @@ namespace Imbick.Assistant.Core.Steps.Samplers {
                     var json = ReadString(buffer, jsonLength);
                     var ping = JsonConvert.DeserializeObject<PingPayload>(json);
 
-                    workflowParameters.Add("MinecraftServerPlayerCount",
-                        new WorkflowParameter<int>("MinecraftServerPlayerCount", ping.Players.Online));
                     if (ping.Players.Online > 0) {
-                        var players = ping.Players.Sample.Select(t => new MinecraftPlayer {Name = t.Name, Id = t.Id}).ToList();
-                        var param = new WorkflowParameter<MinecraftPlayer[]>("MinecraftServerPlayers", players.ToArray()); //may need to be a intrinsic workflow param for each player so that subsequent steps don't need to understand the MinecraftPlayer type.
-                        workflowParameters.Add("MinecraftServerPlayers", param);
+                        workflowState.Payload = ping.Players.Sample.Select(t => new MinecraftPlayer { Name = t.Name, Id = t.Id }).ToList();
                     }
                 } catch (IOException) {
                     //If an IOException is thrown then the server didn't 
                     //send us a VarInt or sent us an invalid one.
-                    return new RunResult(false);
+                    return RunResult.Failed;
                 } finally {
                     Disconnect();
                 }
-                return new RunResult();
+                return RunResult.Passed;
             }
         }
 

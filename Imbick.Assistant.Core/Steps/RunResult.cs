@@ -10,4 +10,8 @@
             Continue = @continue;
         }
     }
+
+    public class WorkflowState {
+        public object Payload { get; set; }
+    }
 }

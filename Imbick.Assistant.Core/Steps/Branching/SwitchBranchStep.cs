@@ -11,13 +11,14 @@ namespace Imbick.Assistant.Core.Steps.Branching
 
         public SwitchBranchStep()
             : base("Switch branch step") {
+            Cases = new List<SwitchCase>();
         }
 
-        public async override Task<RunResult> Run(IDictionary<string, WorkflowParameter> workflowParameters) {
+        public async override Task<RunResult> Run(WorkflowState workflowState) {
             foreach (var @case in Cases) {
                 var allConditionsSatisfied = true;
                 foreach (var condition in @case.Conditions) {
-                    var conditionResult = await condition.Run(workflowParameters);
+                    var conditionResult = await condition.Run(workflowState);
                     if (!conditionResult.Continue) {
                         allConditionsSatisfied = false;
                         break;
@@ -25,7 +26,7 @@ namespace Imbick.Assistant.Core.Steps.Branching
                 }
 
                 if (allConditionsSatisfied) {
-                    return await @case.Steps.Run(workflowParameters);
+                    return await @case.Steps.Run(workflowState);
                 }
             }
 

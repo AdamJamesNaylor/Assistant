@@ -1,5 +1,4 @@
 ﻿namespace Imbick.Assistant.Core.Steps {
-    using System.Collections.Generic;
     using System.Threading.Tasks;
 
     public abstract class Step
@@ -10,6 +9,6 @@
             Name = name;
         }
 
-        public abstract Task<RunResult> Run(IDictionary<string, WorkflowParameter> workflowParameters);
+        public abstract Task<RunResult> Run(WorkflowState workflowState);
     }
 }

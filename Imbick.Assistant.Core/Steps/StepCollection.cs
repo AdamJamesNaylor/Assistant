@@ -5,11 +5,9 @@
     public class StepCollection<T>
         : List<Step>, IRunnable where T : Step {
 
-        public async Task<RunResult> Run(IDictionary<string, WorkflowParameter> workflowParameters)
-        {
-            foreach (var step in this)
-            {
-                var stepResult = await step.Run(workflowParameters);
+        public async Task<RunResult> Run(WorkflowState workflowState) {
+            foreach (var step in this) {
+                var stepResult = await step.Run(workflowState);
                 if (!stepResult.Continue)
                     return RunResult.Failed;
             }
@@ -18,5 +16,6 @@
     }
 
     public class StepCollection
-        : StepCollection<Step> { }
+        : StepCollection<Step> {
+    }
 }

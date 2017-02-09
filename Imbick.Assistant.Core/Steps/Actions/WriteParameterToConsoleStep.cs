@@ -1,25 +1,24 @@
 ﻿namespace Imbick.Assistant.Core.Steps.Actions {
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Steps;
 
     public class WriteParameterToConsoleStep
         : IRunnable {
-        private readonly string _paramName;
+        private readonly Func<WorkflowState, string> _valueResolver;
 
         public bool IncludeNewline { get; set; }
 
-        public WriteParameterToConsoleStep(string paramName, bool includeNewline = true) {
+        public WriteParameterToConsoleStep(Func<WorkflowState, string> valueResolver, bool includeNewline = true) {
+            _valueResolver = valueResolver;
             IncludeNewline = includeNewline;
-            _paramName = paramName;
         }
 
-        public async Task<RunResult> Run(IDictionary<string, WorkflowParameter> workflowParameter) {
+        public async Task<RunResult> Run(WorkflowState workflowState) {
             if (IncludeNewline)
-                Console.WriteLine(workflowParameter[_paramName].Value);
+                Console.WriteLine(_valueResolver(workflowState));
             else
-                Console.Write(workflowParameter[_paramName].Value);
+                Console.Write(_valueResolver(workflowState));
             return new RunResult();
         }
     }

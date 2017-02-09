@@ -1,24 +1,23 @@
 ﻿namespace Imbick.Assistant.Core.Steps.Conditions {
-    using System.Collections.Generic;
+    using System;
     using System.Threading.Tasks;
 
     public class StringDoesNotEqualCondition
         : ConditionStep {
         private readonly string _paramName;
+        private readonly Func<WorkflowState, string> _valueResolver;
         private readonly string _operand;
 
-        public StringDoesNotEqualCondition(string paramName, string operand) 
+        public StringDoesNotEqualCondition(Func<WorkflowState, string> valueResolver, string operand) 
             : base("String does not equal condition") {
-            _paramName = paramName;
+            _valueResolver = valueResolver;
             _operand = operand;
         }
 
-        public async override Task<RunResult> Run(IDictionary<string, WorkflowParameter> workflowParameters) {
-            var triggerParam = workflowParameters[_paramName];
-            if (triggerParam.Type != typeof(string))
-                throw new InvalidWorkflowParameterTypeException(triggerParam, typeof(string));
-            var result = (string)workflowParameters[_paramName].Value != _operand;
-            return new RunResult(result);
+        public async override Task<RunResult> Run(WorkflowState workflowState) {
+            var value = _valueResolver(workflowState);
+
+            return value != _operand ? RunResult.Passed : RunResult.Failed;
         }
     }
 }

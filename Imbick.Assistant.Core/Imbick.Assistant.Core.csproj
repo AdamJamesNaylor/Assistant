@@ -69,8 +69,10 @@
     <Compile Include="AttachmentFinder.cs" />
     <Compile Include="Commands\CommandArgument.cs" />
     <Compile Include="Commands\OutboundCommand.cs" />
+    <Compile Include="Steps\Actions\MinecraftServerChatSender.cs" />
     <Compile Include="Steps\Actions\RaiseNotificationAction.cs" />
     <Compile Include="Steps\Branching\SwitchCase.cs" />
+    <Compile Include="Steps\Conditions\StringDoesNotEqualConditionStep.cs" />
     <Compile Include="ValueResolvers\WorkflowParameterValueResolver.cs" />
     <Compile Include="Steps\Loops\ForeachLoopStep.cs" />
     <Compile Include="Steps\StepCollection.cs" />
@@ -92,7 +94,6 @@
     <Compile Include="IAnswerMessageTraverser.cs" />
     <Compile Include="IFireable.cs" />
     <Compile Include="Steps\Conditions\IntervalCondition.cs" />
-    <Compile Include="InvalidTriggerParameterTypeException.cs" />
     <Compile Include="IQuestionAnswerMessageTraverser.cs" />
     <Compile Include="IRunnable.cs" />
     <Compile Include="Message.cs" />

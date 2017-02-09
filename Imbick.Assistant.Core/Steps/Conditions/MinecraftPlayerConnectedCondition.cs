@@ -15,12 +15,9 @@ namespace Imbick.Assistant.Core.Steps.Conditions {
             _state = state;
         }
 
-        public async override Task<RunResult> Run(IDictionary<string, WorkflowParameter> workflowParameters) {
-            WorkflowParameter param = null;
-            if (!AnyPlayersConnected(workflowParameters, out param))
-                return new RunResult(false);
+        public async override Task<RunResult> Run(WorkflowState workflowState) {
 
-            var currentlyConnectedPlayers = ((MinecraftPlayer[])param.Value).ToList();
+            var currentlyConnectedPlayers = (ICollection<MinecraftPlayer>)workflowState.Payload;
 
             UntrackOldPlayers(currentlyConnectedPlayers);
 
@@ -29,18 +26,9 @@ namespace Imbick.Assistant.Core.Steps.Conditions {
                 return new RunResult(false);
 
             var firstNewPlayer = newlyConnectedPlayers.First();
-            workflowParameters.Add("MinecraftPlayerConnected", new WorkflowParameter<string>("MinecraftPlayerConnected", firstNewPlayer.Name));
+            //workflowParameters.Add("MinecraftPlayerConnected", new WorkflowParameter<string>("MinecraftPlayerConnected", firstNewPlayer.Name));
             TrackNewPlayer(firstNewPlayer);
             return new RunResult();
-        }
-
-        private bool AnyPlayersConnected(IDictionary<string, WorkflowParameter> workflowParameters, out WorkflowParameter param) {
-            param = null;
-            if (!workflowParameters.ContainsKey("MinecraftServerPlayers"))
-                return false;
-            
-            param = workflowParameters["MinecraftServerPlayers"];
-            return param.Type == typeof (MinecraftPlayer[]);
         }
 
         private void TrackNewPlayer(MinecraftPlayer firstNewPlayer) {

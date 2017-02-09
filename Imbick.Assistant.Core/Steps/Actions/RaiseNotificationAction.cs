@@ -20,8 +20,8 @@
             _messageFormat = messageFormat;
         }
 
-        public async override Task<RunResult> Run(IDictionary<string, WorkflowParameter> workflowParameters) {
-            var message = Smart.Format(_messageFormat, workflowParameters);
+        public async override Task<RunResult> Run(WorkflowState workflowState) {
+            var message = Smart.Format(_messageFormat, workflowState);
             foreach (var deviceId in _deviceIds) {
                 var command = new RaiseNotificationCommand(message);
                 var serialisedCommand = JsonConvert.SerializeObject(command);

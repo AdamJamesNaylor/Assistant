@@ -15,7 +15,7 @@
             _logger = LogManager.GetCurrentClassLogger();
         }
 
-        public async override Task<RunResult> Run(IDictionary<string, WorkflowParameter> workflowParameter) {
+        public async override Task<RunResult> Run(WorkflowState workflowState) {
             _logger.Trace($"IntervalCondition running with {_interval.Milliseconds}ms interval. Last fired {_lastFired}.");
 
             var now = DateTime.Now;

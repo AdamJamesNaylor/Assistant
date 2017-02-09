@@ -1,4 +1,5 @@
 ﻿namespace Imbick.Assistant.Core.ValueResolvers {
+    using System;
     using System.Collections.Generic;
     using Steps.Conditions;
 
@@ -24,4 +25,15 @@
             return (T)parameter.Value;
         }
     }
+
+    public class ValueResolutionException : Exception {
+        public ValueResolutionException(string s) {
+            throw new NotImplementedException();
+        }
+    }
+
+    public interface IValueResolver<T> {
+        T Resolve();
+    }
+
 }

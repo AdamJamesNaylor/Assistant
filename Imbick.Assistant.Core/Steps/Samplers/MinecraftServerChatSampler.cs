@@ -8,7 +8,9 @@ namespace Imbick.Assistant.Core.Steps.Samplers {
     using System.Threading.Tasks;
 
     public class MinecraftChatMessage {
+        [JsonProperty("name")]
         public string Name { get; set; }
+        [JsonProperty("message")]
         public string Message { get; set; }
     }
 
@@ -23,21 +25,21 @@ namespace Imbick.Assistant.Core.Steps.Samplers {
             };
         }
 
-        public override async Task<RunResult> Run(IDictionary<string, WorkflowParameter> workflowParameters) {
+        public override async Task<RunResult> Run(WorkflowState workflowState)
+        {
             var response = await _client.GetAsync("/up/world/world/1234");
             if (!response.IsSuccessStatusCode)
                 return new RunResult(false);
 
             var serialisedResponse = await response.Content.ReadAsStringAsync();
             var dynMapResponse = JsonConvert.DeserializeObject<DynMapResponse>(serialisedResponse);
-            var messages =
+            workflowState.Payload =
                 dynMapResponse.updates.Where(u => u.type == "chat").Select(update => new MinecraftChatMessage {
                     Message = update.message,
                     Name = update.name
                 });
-            workflowParameters["MinecraftChatMessages"] = new WorkflowParameter<IEnumerable<MinecraftChatMessage>>("MinecraftChatMessages", messages);
 
-            return new RunResult();
+            return RunResult.Passed;
         }
 
         private readonly HttpClient _client;

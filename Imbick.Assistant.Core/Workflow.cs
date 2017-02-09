@@ -16,10 +16,10 @@
             _logger = LogManager.GetCurrentClassLogger();
         }
 
-        public async Task<RunResult> Run(IDictionary<string, WorkflowParameter> workflowParameters = null)
+        public async Task<RunResult> Run(WorkflowState workflowState = null)
         {
             foreach (var step in Steps) {
-                var result = await step.Run(_parameters);
+                var result = await step.Run(workflowState);
                 if (!result.Continue)
                     break;
             }
