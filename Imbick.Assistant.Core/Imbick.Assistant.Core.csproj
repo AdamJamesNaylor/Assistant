@@ -69,9 +69,12 @@
     <Compile Include="AttachmentFinder.cs" />
     <Compile Include="Commands\CommandArgument.cs" />
     <Compile Include="Commands\OutboundCommand.cs" />
+    <Compile Include="Steps\Actions\FuzzyTextMatchAction.cs" />
     <Compile Include="Steps\Actions\MinecraftServerChatSender.cs" />
     <Compile Include="Steps\Actions\RaiseNotificationAction.cs" />
     <Compile Include="Steps\Branching\SwitchCase.cs" />
+    <Compile Include="Steps\Conditions\CompoundCondition.cs" />
+    <Compile Include="Steps\Conditions\Operators\Logical\AndOpertor.cs" />
     <Compile Include="Steps\Conditions\StringDoesNotEqualConditionStep.cs" />
     <Compile Include="ValueResolvers\WorkflowParameterValueResolver.cs" />
     <Compile Include="Steps\Loops\ForeachLoopStep.cs" />
@@ -134,6 +137,7 @@
     </None>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

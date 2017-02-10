@@ -3,6 +3,7 @@ namespace Imbick.Assistant.Core.Steps.Branching
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using NLog;
 
     public class SwitchBranchStep
         : Step {
@@ -12,6 +13,7 @@ namespace Imbick.Assistant.Core.Steps.Branching
         public SwitchBranchStep()
             : base("Switch branch step") {
             Cases = new List<SwitchCase>();
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
         public async override Task<RunResult> Run(WorkflowState workflowState) {
@@ -25,12 +27,16 @@ namespace Imbick.Assistant.Core.Steps.Branching
                     }
                 }
 
-                if (allConditionsSatisfied) {
-                    return await @case.Steps.Run(workflowState);
-                }
+                if (!allConditionsSatisfied)
+                    continue;
+
+                _logger.Trace($"All conditions satisified for case {@case.Name}.");
+                return await @case.Steps.Run(workflowState);
             }
 
+            _logger.Trace("No cases were fully satisified.");
             return RunResult.Failed;
         }
+        private readonly Logger _logger;
     }
 }

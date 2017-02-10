@@ -3,7 +3,6 @@ namespace Imbick.Assistant.Core.Steps.Actions {
     using Newtonsoft.Json;
     using Steps;
     using System.Net.Http;
-    using System.Net.Http.Headers;
     using System.Text;
     using System.Threading.Tasks;
     using NLog;
@@ -24,14 +23,16 @@ namespace Imbick.Assistant.Core.Steps.Actions {
         public override async Task<RunResult> Run(WorkflowState workflowState) {
             _logger.Trace($"Sending message to Minecraft server {_host}");
             var message = new MinecraftChatMessage {
-                Name = "SomeDude",
-                Message = "Hello?"
+                Name = "####",
+                Message = workflowState.ToString()
             };
             var serialisedMessage = JsonConvert.SerializeObject(message);
             var content = new StringContent(serialisedMessage, Encoding.UTF8, "application/json");
             var response = await _client.PostAsync("/up/sendmessage", content);
-            if (!response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode) {
+                _logger.Error($"Failed to send chat message to {response.RequestMessage.RequestUri.AbsoluteUri} ({response.StatusCode})");
                 return RunResult.Failed;
+            }
 
             _logger.Trace("Sent");
             return RunResult.Passed;
@@ -39,6 +40,6 @@ namespace Imbick.Assistant.Core.Steps.Actions {
 
         private readonly HttpClient _client;
         private readonly string _host;
-        private Logger _logger;
+        private readonly Logger _logger;
     }
 }

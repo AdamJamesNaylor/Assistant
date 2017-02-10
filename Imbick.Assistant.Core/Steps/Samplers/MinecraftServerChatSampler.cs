@@ -6,6 +6,7 @@ namespace Imbick.Assistant.Core.Steps.Samplers {
     using Steps;
     using System.Net.Http;
     using System.Threading.Tasks;
+    using NLog;
 
     public class MinecraftChatMessage {
         [JsonProperty("name")]
@@ -23,18 +24,25 @@ namespace Imbick.Assistant.Core.Steps.Samplers {
             _client = new HttpClient {
                 BaseAddress = new Uri(_host)
             };
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
         public override async Task<RunResult> Run(WorkflowState workflowState)
         {
-            var response = await _client.GetAsync("/up/world/world/1234");
-            if (!response.IsSuccessStatusCode)
-                return new RunResult(false);
+            var now = DateTime.UtcNow;
+            _logger.Trace($"Checking for Minecraft chat messages at {now.Ticks}.");
+            var response = await _client.GetAsync($"/up/world/world/{now.Ticks}");
+            if (!response.IsSuccessStatusCode) {
+                _logger.Error($"Error checking for messages from {response.RequestMessage.RequestUri.AbsoluteUri} ({response.StatusCode}).");
+                return RunResult.Failed;
+            }
 
             var serialisedResponse = await response.Content.ReadAsStringAsync();
             var dynMapResponse = JsonConvert.DeserializeObject<DynMapResponse>(serialisedResponse);
+            var chatMessages = dynMapResponse.updates.Where(u => u.type == "chat");
+            _logger.Trace($"{chatMessages.Count()} chat messages returned.");
             workflowState.Payload =
-                dynMapResponse.updates.Where(u => u.type == "chat").Select(update => new MinecraftChatMessage {
+                chatMessages.Select(update => new MinecraftChatMessage {
                     Message = update.message,
                     Name = update.name
                 });
@@ -44,6 +52,7 @@ namespace Imbick.Assistant.Core.Steps.Samplers {
 
         private readonly HttpClient _client;
         private readonly string _host;
+        private readonly Logger _logger;
     }
 
     public class DynMapResponsePlayer {

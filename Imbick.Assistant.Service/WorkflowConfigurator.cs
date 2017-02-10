@@ -11,7 +11,7 @@ namespace Imbick.Assistant.Service {
     public class WorkflowConfigurator {
         private IntervalConditionStep _fiveSecondInterval;
         private string _minecraftHost = "https://mc.selea.se";
-        private RedisStateProvider _redisStateProvider = new RedisStateProvider("localhost");
+        private readonly RedisStateProvider _redisStateProvider = new RedisStateProvider("localhost");
 
         public IEnumerable<Workflow> GetWorkflows() {
             const int fiveSecondsInMilliseconds = 5000;
@@ -34,20 +34,24 @@ namespace Imbick.Assistant.Service {
             workflow.AddStep(oneSecondInterval);
 
             var chatSampler = new MinecraftServerChatSampler(_minecraftHost);
-            //workflow.AddStep(chatSampler);
-
+            workflow.AddStep(chatSampler);
+            //todo may need to check state at this point in case messages are responded to more than once - also check messages aren't lost
             var loopStep = new ForeachLoopStep<MinecraftChatMessage>();
-            //workflow.AddStep(loopStep);
+            loopStep.Steps.Add(new StringDoesNotEqualConditionStep(w => ((MinecraftChatMessage)w.Payload).Name, "Imbick"));
+            loopStep.Steps.Add(new StringStartsWithConditionStep(w => ((MinecraftChatMessage)w.Payload).Message.ToLower(), "thaddeus,"));
+            workflow.AddStep(loopStep);
 
+            /*
             var switchStep = new SwitchBranchStep();
             var case1 = new SwitchCase {
-                Name = "Hello"
+                Name = "Someone speaking to Thaddeus"
             };
             case1.Conditions.Add(new StringDoesNotEqualConditionStep(w => ((MinecraftChatMessage)w.Payload).Name, "Imbick"));
             case1.Conditions.Add(new StringStartsWithConditionStep(w => ((MinecraftChatMessage)w.Payload).Message.ToLower(), "thaddeus,"));
+            case1.Steps.Add(new MatchChatTextAction(w => ((string)w.Payload).Substring(9)));
             case1.Steps.Add(new MinecraftServerChatSender(_minecraftHost));
             switchStep.Cases.Add(case1);
-            workflow.AddStep(new MinecraftServerChatSender(_minecraftHost));
+            */
             return workflow;
         }
 
