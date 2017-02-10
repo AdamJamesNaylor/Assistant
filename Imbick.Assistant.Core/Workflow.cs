@@ -8,22 +8,27 @@
         : IRunnable {
         public string Name { get; }
         public IReadOnlyCollection<Step> Steps => _steps.AsReadOnly();
+        public bool IsRunning { get; private set; }
 
         public Workflow(string name) {
             Name = name;
             _steps = new StepCollection();
-            _parameters = new Dictionary<string, WorkflowParameter>();
             _logger = LogManager.GetCurrentClassLogger();
+            IsRunning = false;
         }
 
-        public async Task<RunResult> Run(WorkflowState workflowState = null)
-        {
+        public async Task<RunResult> Run(WorkflowState workflowState = null) {
+            IsRunning = true;
             foreach (var step in Steps) {
+                _logger.Trace($"Running step {step.Name} in workflow {Name}.");
                 var result = await step.Run(workflowState);
-                if (!result.Continue)
+                if (!result.Continue) {
+                    _logger.Debug($"Workflow {Name} terminated after step {step.Name}.");
                     break;
+                }
+                _logger.Trace($"Step {step.Name} passed in workflow {Name}.");
             }
-            _parameters.Clear();
+            IsRunning = false;
             return null;
         }
 
@@ -32,7 +37,6 @@
             _steps.Add(step);
         }
 
-        private readonly Dictionary<string, WorkflowParameter> _parameters;
         private readonly StepCollection _steps;
         private readonly Logger _logger;
     }

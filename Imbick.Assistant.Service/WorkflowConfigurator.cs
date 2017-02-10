@@ -17,9 +17,9 @@ namespace Imbick.Assistant.Service {
             const int fiveSecondsInMilliseconds = 5000;
             _fiveSecondInterval = new IntervalConditionStep(TimeSpan.FromMilliseconds(fiveSecondsInMilliseconds));
 
-            var workflow1 = BuildPlayerConnectedWorkflow();
+            //var workflow1 = BuildPlayerConnectedWorkflow();
 
-            var workflow2 = BuildTravelEmailWorkflow();
+            //var workflow2 = BuildTravelEmailWorkflow();
 
             var workflow3 = BuildMinecraftChatWorkflow();
 
@@ -27,10 +27,10 @@ namespace Imbick.Assistant.Service {
         }
 
         private Workflow BuildMinecraftChatWorkflow() {
+            var workflow = new Workflow("Respond to chat messages");
+
             const int oneSecondsInMilliseconds = 1000;
             var oneSecondInterval = new IntervalConditionStep(TimeSpan.FromMilliseconds(oneSecondsInMilliseconds));
-
-            var workflow = new Workflow("Respond to chat messages.");
             workflow.AddStep(oneSecondInterval);
 
             var chatSampler = new MinecraftServerChatSampler(_minecraftHost);
@@ -38,14 +38,33 @@ namespace Imbick.Assistant.Service {
             //todo may need to check state at this point in case messages are responded to more than once - also check messages aren't lost
             var loopStep = new ForeachLoopStep<MinecraftChatMessage>();
             {
-                loopStep.Steps.Add(new StringDoesNotEqualConditionStep(w => ((MinecraftChatMessage) w.Payload).Name, "Imbick"));
-                loopStep.Steps.Add(new StringStartsWithConditionStep(w => ((MinecraftChatMessage) w.Payload).Message.ToLower(), "thaddeus,"));
-                var fuzzyTextMatchAction = new FuzzyTextMatchAction(w => ((string) w.Payload).Substring(9).Trim());
+                //loopStep.Steps.Add(new StringDoesNotEqualConditionStep(w => ((MinecraftChatMessage) w.Payload).Name, "Imbick"));
+                loopStep.Steps.Add(new StringStartsWithConditionStep(w => ((MinecraftChatMessage)w.Payload).Message.ToLower(), "thaddeus,"));
+                var fuzzyTextMatchAction = new FuzzyTextMatchAction(w => ((MinecraftChatMessage)w.Payload).Message.Substring(9).Trim());
                 {
-                    fuzzyTextMatchAction.Matches.Add(new FuzzyTextMatch {
-                            Terms = {"help"},
-                            Steps = {new SetPayloadStep("test")}
-                        });
+                    fuzzyTextMatchAction.Matches.Add(new FuzzyTextMatch
+                    {
+                        Terms = { "ping" },
+                        Steps = { new SetPayloadStep("pong") }
+                    });
+
+                    fuzzyTextMatchAction.Matches.Add(new FuzzyTextMatch
+                    {
+                        Terms = { "who are you?", "tell me about yourself" },
+                        Steps = { new SetPayloadStep("My name is Thaddeus, and I am here to help.") }
+                    });
+
+                    fuzzyTextMatchAction.Matches.Add(new FuzzyTextMatch
+                    {
+                        Terms = { "when where you born?" },
+                        Steps = { new SetPayloadStep("I said my first words at midnight on Valentines day 2017.") }
+                    });
+
+                    fuzzyTextMatchAction.Matches.Add(new FuzzyTextMatch
+                    {
+                        Terms = { "cya" },
+                        Steps = { new SetPayloadStep("See you soon.") }
+                    });
 
                     fuzzyTextMatchAction.FailureSteps.Add(new SetPayloadStep("Sorry, I'm not sure what you mean?"));
                 }

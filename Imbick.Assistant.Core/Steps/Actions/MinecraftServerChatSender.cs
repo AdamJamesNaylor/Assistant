@@ -21,10 +21,10 @@ namespace Imbick.Assistant.Core.Steps.Actions {
         }
 
         public override async Task<RunResult> Run(WorkflowState workflowState) {
-            _logger.Trace($"Sending message to Minecraft server {_host}");
+            _logger.Trace($"Sending message {workflowState.Payload} to Minecraft server {_host}");
             var message = new MinecraftChatMessage {
-                Name = "####",
-                Message = workflowState.ToString()
+                Name = "Thaddeus",
+                Message = workflowState.Payload.ToString()
             };
             var serialisedMessage = JsonConvert.SerializeObject(message);
             var content = new StringContent(serialisedMessage, Encoding.UTF8, "application/json");
