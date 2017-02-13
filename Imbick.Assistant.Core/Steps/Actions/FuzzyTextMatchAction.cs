@@ -3,27 +3,32 @@ namespace Imbick.Assistant.Core.Steps.Actions {
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using NLog;
 
-    public class Match {
+    public class FuzzyTextMatch {
         public List<string> Terms { get; set; } 
-        public List<Step> Steps { get; set; } 
+        public StepCollection Steps { get; set; } 
     }
 
     public class FuzzyTextMatchAction
         : Step {
 
-        public List<Match> Matches { get; set; }
+        public List<FuzzyTextMatch> Matches { get; set; }
+        public StepCollection FailureSteps { get; set; }
 
-        public FuzzyTextMatchAction(Func<WorkflowState, string> valueResolver)
+        public FuzzyTextMatchAction(Func<WorkflowState, string> valueResolver, int accuracyThreshold = 4)
             : base("Match chat text action") {
             _valueResolver = valueResolver;
-            Matches = new List<Match>();
+            _accuracyThreshold = accuracyThreshold;
+            Matches = new List<FuzzyTextMatch>();
+            FailureSteps = new StepCollection();
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
         public override async Task<RunResult> Run(WorkflowState workflowState) {
             var request = _valueResolver(workflowState);
-            var lowestScore = 0;
-            List<Step> matchedSteps;
+            var lowestScore = _accuracyThreshold;
+            StepCollection matchedSteps = null;
             foreach (var potentialMatch in Matches) {
                 foreach (var term in potentialMatch.Terms) {
                     var score = CalculateSimilarity(request, term);
@@ -33,13 +38,12 @@ namespace Imbick.Assistant.Core.Steps.Actions {
                     matchedSteps = potentialMatch.Steps;
                 }
             }
-            const int ACCURACY_THRESHOLD = 4;
-            if (lowestScore > ACCURACY_THRESHOLD)
-                workflowState.Payload = "I'm not sure what you mean?";
+            if (lowestScore >= _accuracyThreshold || matchedSteps == null) {
+                _logger.Trace($"No match was found for term '{request}'. Lowest score was {lowestScore} but should have been less than {_accuracyThreshold}.");
+                return await FailureSteps.Run(workflowState);
+            }
 
-            //matchedSteps.Run();
-            //workflowState.Payload = response;
-            return RunResult.Passed;
+            return await matchedSteps.Run(workflowState);
         }
 
         private int CalculateSimilarity(string s, string t) {
@@ -78,10 +82,8 @@ namespace Imbick.Assistant.Core.Steps.Actions {
             return d[n, m];
         }
 
-        private readonly Dictionary<string, string> _responseTemplatesMap = new Dictionary<string, string> {
-            {"Hello", "Hello"}
-        };
-
         private readonly Func<WorkflowState, string> _valueResolver;
+        private readonly int _accuracyThreshold;
+        private readonly Logger _logger;
     }
 }

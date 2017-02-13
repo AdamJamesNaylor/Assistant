@@ -72,7 +72,9 @@
     <Compile Include="Steps\Actions\FuzzyTextMatchAction.cs" />
     <Compile Include="Steps\Actions\MinecraftServerChatSender.cs" />
     <Compile Include="Steps\Actions\RaiseNotificationAction.cs" />
+    <Compile Include="Steps\Actions\SetPayloadStep.cs" />
     <Compile Include="Steps\Branching\SwitchCase.cs" />
+    <Compile Include="Steps\CompoundStep.cs" />
     <Compile Include="Steps\Conditions\CompoundCondition.cs" />
     <Compile Include="Steps\Conditions\Operators\Logical\AndOpertor.cs" />
     <Compile Include="Steps\Conditions\StringDoesNotEqualConditionStep.cs" />
