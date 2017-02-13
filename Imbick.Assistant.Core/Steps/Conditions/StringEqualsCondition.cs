@@ -1,25 +1,24 @@
 ﻿namespace Imbick.Assistant.Core.Steps.Conditions {
-    using System.Collections.Generic;
+    using System;
+    using System.Threading.Tasks;
     using Steps;
 
     public class StringEqualsConditionStep
         : ConditionStep {
 
-        public StringEqualsConditionStep(string paramName, string operand)
+        public StringEqualsConditionStep(Func<WorkflowState, string> valueResolver, string operand)
             : base("String equals condition") {
-            _paramName = paramName;
+            _valueResolver = valueResolver;
             _operand = operand;
         }
 
-        public override StepRunResult Run(IDictionary<string, WorkflowParameter> workflowParameters) {
-            var triggerParam = workflowParameters[_paramName];
-            if (triggerParam.Type != typeof (string))
-                throw new InvalidWorkflowParameterTypeException(triggerParam, typeof (string));
-            var result = (string) workflowParameters[_paramName].Value == _operand;
-            return new StepRunResult(result);
+        public async override Task<RunResult> Run(WorkflowState workflowState) {
+            var value = _valueResolver(workflowState);
+
+            return value != _operand ? RunResult.Failed : RunResult.Passed;
         }
 
-        private readonly string _paramName;
+        private readonly Func<WorkflowState, string> _valueResolver;
         private readonly string _operand;
     }
 }

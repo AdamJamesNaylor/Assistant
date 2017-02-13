@@ -1,59 +1,61 @@
-namespace Imbick.Assistant.Core.Steps.Samplers
-{
+namespace Imbick.Assistant.Core.Steps.Samplers {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using Newtonsoft.Json;
     using Steps;
     using System.Net.Http;
     using System.Threading.Tasks;
+    using NLog;
 
-    public class MinecraftChatMessage
-    {
+    public class MinecraftChatMessage {
+        [JsonProperty("name")]
         public string Name { get; set; }
+        [JsonProperty("message")]
         public string Message { get; set; }
     }
 
     public class MinecraftServerChatSampler
-        : Step
-    {
-        private HttpClient _client;
-        private readonly string _host;
+        : Step {
 
         public MinecraftServerChatSampler(string host)
-            : base("Minecraft server chat sampler")
-        {
+            : base("Minecraft server chat sampler") {
             _host = host;
-            _client = new HttpClient();
-            _client.BaseAddress = new Uri(_host);
+            _client = new HttpClient {
+                BaseAddress = new Uri(_host)
+            };
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
-        public override async Task<StepRunResult> Run(IDictionary<string, WorkflowParameter> workflowParameters)
+        public override async Task<RunResult> Run(WorkflowState workflowState)
         {
-            var response = await _client.GetAsync("/up/world/world/1234");
-            if (!response.IsSuccessStatusCode)
-                return new StepRunResult(false);
+            var now = DateTime.UtcNow;
+            _logger.Trace($"Checking for Minecraft chat messages at {now.Ticks}.");
+            var response = await _client.GetAsync($"/up/world/world/{now.Ticks}");
+            if (!response.IsSuccessStatusCode) {
+                _logger.Error($"Error checking for messages from {response.RequestMessage.RequestUri.AbsoluteUri} ({response.StatusCode}).");
+                return RunResult.Failed;
+            }
 
             var serialisedResponse = await response.Content.ReadAsStringAsync();
             var dynMapResponse = JsonConvert.DeserializeObject<DynMapResponse>(serialisedResponse);
-            foreach (var update in dynMapResponse.updates)
-            {
-                if (update.type == "chat")
-                {
-                    var message = new MinecraftChatMessage
-                    {
-                        Message = update.message,
-                        Name = update.name
-                    };
-                    //todo record
-                }
-            }
+            var chatMessages = dynMapResponse.updates.Where(u => u.type == "chat");
+            _logger.Trace($"{chatMessages.Count()} chat messages returned.");
+            workflowState.Payload =
+                chatMessages.Select(update => new MinecraftChatMessage {
+                    Message = update.message,
+                    Name = update.name
+                });
 
-            return new StepRunResult();
+            return RunResult.Passed;
         }
+
+        private readonly HttpClient _client;
+        private readonly string _host;
+        private readonly Logger _logger;
     }
 
-    public class DynMapResponsePlayer
-    {
+    public class DynMapResponsePlayer {
         public string world { get; set; }
         public int armor { get; set; }
         public string name { get; set; }
@@ -66,8 +68,7 @@ namespace Imbick.Assistant.Core.Steps.Samplers
         public string account { get; set; }
     }
 
-    public class DynMapResponseUpdate
-    {
+    public class DynMapResponseUpdate {
         public string type { get; set; }
         public string name { get; set; }
         public object timestamp { get; set; }
@@ -92,8 +93,7 @@ namespace Imbick.Assistant.Core.Steps.Samplers
         public string channel { get; set; }
     }
 
-    public class DynMapResponse
-    {
+    public class DynMapResponse {
         public int currentcount { get; set; }
         public bool hasStorm { get; set; }
         public List<DynMapResponsePlayer> players { get; set; }

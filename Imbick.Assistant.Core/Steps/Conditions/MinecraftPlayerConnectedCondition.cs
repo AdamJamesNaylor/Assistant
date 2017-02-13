@@ -2,6 +2,7 @@
 namespace Imbick.Assistant.Core.Steps.Conditions {
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using Newtonsoft.Json;
     using Steps;
     using Steps.Samplers;
@@ -14,32 +15,20 @@ namespace Imbick.Assistant.Core.Steps.Conditions {
             _state = state;
         }
 
-        public override StepRunResult Run(IDictionary<string, WorkflowParameter> workflowParameters) {
-            WorkflowParameter param = null;
-            if (!AnyPlayersConnected(workflowParameters, out param))
-                return new StepRunResult(false);
+        public async override Task<RunResult> Run(WorkflowState workflowState) {
 
-            var currentlyConnectedPlayers = ((MinecraftPlayer[])param.Value).ToList();
+            var currentlyConnectedPlayers = (ICollection<MinecraftPlayer>)workflowState.Payload;
 
             UntrackOldPlayers(currentlyConnectedPlayers);
 
             var newlyConnectedPlayers = currentlyConnectedPlayers.Where(currentlyConnectedPlayer => !WasPreviouslyConnected(currentlyConnectedPlayer)).ToList();
             if (!newlyConnectedPlayers.Any())
-                return new StepRunResult(false);
+                return new RunResult(false);
 
             var firstNewPlayer = newlyConnectedPlayers.First();
-            workflowParameters.Add("MinecraftPlayerConnected", new WorkflowParameter<string>("MinecraftPlayerConnected", firstNewPlayer.Name));
+            //workflowParameters.Add("MinecraftPlayerConnected", new WorkflowParameter<string>("MinecraftPlayerConnected", firstNewPlayer.Name));
             TrackNewPlayer(firstNewPlayer);
-            return new StepRunResult();
-        }
-
-        private bool AnyPlayersConnected(IDictionary<string, WorkflowParameter> workflowParameters, out WorkflowParameter param) {
-            param = null;
-            if (!workflowParameters.ContainsKey("MinecraftServerPlayers"))
-                return false;
-            
-            param = workflowParameters["MinecraftServerPlayers"];
-            return param.Type == typeof (MinecraftPlayer[]);
+            return new RunResult();
         }
 
         private void TrackNewPlayer(MinecraftPlayer firstNewPlayer) {

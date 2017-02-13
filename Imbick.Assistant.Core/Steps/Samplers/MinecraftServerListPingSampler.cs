@@ -4,6 +4,7 @@ namespace Imbick.Assistant.Core.Steps.Samplers {
     using System.IO;
     using System.Linq;
     using System.Net.Sockets;
+    using System.Threading.Tasks;
     using Newtonsoft.Json;
     using Steps;
 
@@ -30,11 +31,11 @@ namespace Imbick.Assistant.Core.Steps.Samplers {
             _offset = 0;
         }
 
-        public override StepRunResult Run(IDictionary<string, WorkflowParameter> workflowParameters) {
+        public async override Task<RunResult> Run(WorkflowState workflowState) {
 
             using (_client = new TcpClient()) {
                 if (!Connect())
-                    return new StepRunResult(false);
+                    return new RunResult(false);
 
                 SendHandshakePacket();
 
@@ -53,21 +54,17 @@ namespace Imbick.Assistant.Core.Steps.Samplers {
                     var json = ReadString(buffer, jsonLength);
                     var ping = JsonConvert.DeserializeObject<PingPayload>(json);
 
-                    workflowParameters.Add("MinecraftServerPlayerCount",
-                        new WorkflowParameter<int>("MinecraftServerPlayerCount", ping.Players.Online));
                     if (ping.Players.Online > 0) {
-                        var players = ping.Players.Sample.Select(t => new MinecraftPlayer {Name = t.Name, Id = t.Id}).ToList();
-                        var param = new WorkflowParameter<MinecraftPlayer[]>("MinecraftServerPlayers", players.ToArray()); //may need to be a intrinsic workflow param for each player so that subsequent steps don't need to understand the MinecraftPlayer type.
-                        workflowParameters.Add("MinecraftServerPlayers", param);
+                        workflowState.Payload = ping.Players.Sample.Select(t => new MinecraftPlayer { Name = t.Name, Id = t.Id }).ToList();
                     }
                 } catch (IOException) {
                     //If an IOException is thrown then the server didn't 
                     //send us a VarInt or sent us an invalid one.
-                    return new StepRunResult(false);
+                    return RunResult.Failed;
                 } finally {
                     Disconnect();
                 }
-                return new StepRunResult();
+                return RunResult.Passed;
             }
         }
 

@@ -6,6 +6,7 @@ namespace Imbick.Assistant.Core.Steps.Conditions {
     using System.Net.Sockets;
     using System.Security.Cryptography;
     using System.Text;
+    using System.Threading.Tasks;
     using Steps;
 
     public class Pop3EmailReceivedConditionStep
@@ -22,7 +23,7 @@ namespace Imbick.Assistant.Core.Steps.Conditions {
             _algorithm = MD5.Create();
         }
 
-        public override StepRunResult Run(IDictionary<string, WorkflowParameter> workflowParameter) {
+        public async override Task<RunResult> Run(WorkflowState workflowState) {
             Connect();
 
             Authenticate();
@@ -32,11 +33,10 @@ namespace Imbick.Assistant.Core.Steps.Conditions {
             Disconnect();
 
             if (newMessage == null)
-                return new StepRunResult {Continue = false};
+                return RunResult.Failed;
 
-            var param = new WorkflowParameter<string>("email_subject", newMessage.Headers.Subject);
-            workflowParameter.Add(param.Name, param);
-            return new StepRunResult {Continue = true};
+            workflowState.Payload = newMessage;
+            return RunResult.Passed;
         }
 
         private Message RetrieveFirstNewMail() {
