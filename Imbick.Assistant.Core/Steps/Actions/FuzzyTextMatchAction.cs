@@ -7,7 +7,12 @@ namespace Imbick.Assistant.Core.Steps.Actions {
 
     public class FuzzyTextMatch {
         public List<string> Terms { get; set; } 
-        public StepCollection Steps { get; set; } 
+        public StepCollection Steps { get; set; }
+
+        public FuzzyTextMatch() {
+            Terms = new List<string>();
+            Steps = new StepCollection();
+        }
     }
 
     public class FuzzyTextMatchAction
@@ -43,6 +48,7 @@ namespace Imbick.Assistant.Core.Steps.Actions {
                 return await FailureSteps.Run(workflowState);
             }
 
+            _logger.Trace($"Term '{request}' was matched with a score of {lowestScore}");
             return await matchedSteps.Run(workflowState);
         }
 

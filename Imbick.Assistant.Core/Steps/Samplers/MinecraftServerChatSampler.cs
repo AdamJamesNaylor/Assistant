@@ -27,11 +27,10 @@ namespace Imbick.Assistant.Core.Steps.Samplers {
             _logger = LogManager.GetCurrentClassLogger();
         }
 
-        public override async Task<RunResult> Run(WorkflowState workflowState)
-        {
-            var now = DateTime.UtcNow;
-            _logger.Trace($"Checking for Minecraft chat messages at {now.Ticks}.");
-            var response = await _client.GetAsync($"/up/world/world/{now.Ticks}");
+        public override async Task<RunResult> Run(WorkflowState workflowState) {
+            string requestUri = $"/up/world/world/{_ticks}";
+            _logger.Trace($"Checking for Minecraft chat messages at {_ticks} against {_host + requestUri}.");
+            var response = await _client.GetAsync(requestUri);
             if (!response.IsSuccessStatusCode) {
                 _logger.Error($"Error checking for messages from {response.RequestMessage.RequestUri.AbsoluteUri} ({response.StatusCode}).");
                 return RunResult.Failed;
@@ -39,8 +38,13 @@ namespace Imbick.Assistant.Core.Steps.Samplers {
 
             var serialisedResponse = await response.Content.ReadAsStringAsync();
             var dynMapResponse = JsonConvert.DeserializeObject<DynMapResponse>(serialisedResponse);
+            _ticks = dynMapResponse.timestamp;
             var chatMessages = dynMapResponse.updates.Where(u => u.type == "chat");
-            _logger.Trace($"{chatMessages.Count()} chat messages returned.");
+
+            _logger.Trace($"{chatMessages.Count()} chat messages returned out of {dynMapResponse.updates.Count} updates.");
+            if (!chatMessages.Any())
+                return RunResult.Failed;
+
             workflowState.Payload =
                 chatMessages.Select(update => new MinecraftChatMessage {
                     Message = update.message,
@@ -53,6 +57,7 @@ namespace Imbick.Assistant.Core.Steps.Samplers {
         private readonly HttpClient _client;
         private readonly string _host;
         private readonly Logger _logger;
+        private long _ticks = 0;
     }
 
     public class DynMapResponsePlayer {
