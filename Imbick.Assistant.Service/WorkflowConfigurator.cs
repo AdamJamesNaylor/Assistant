@@ -11,7 +11,7 @@ namespace Imbick.Assistant.Service {
     public class WorkflowConfigurator {
         private IntervalConditionStep _fiveSecondInterval;
         private string _minecraftHost = "https://mc.selea.se";
-        private readonly RedisStateProvider _redisStateProvider = new RedisStateProvider("localhost");
+        //private readonly RedisStateProvider _redisStateProvider = new RedisStateProvider("localhost");
 
         public IEnumerable<Workflow> GetWorkflows() {
             const int fiveSecondsInMilliseconds = 5000;
@@ -50,6 +50,36 @@ namespace Imbick.Assistant.Service {
 
                     fuzzyTextMatchAction.Matches.Add(new FuzzyTextMatch
                     {
+                        Terms = { "help", "cmds" },
+                        Steps = { new SetPayloadStep("The commands I support are [help, shops, stock]") }
+                    });
+
+                    fuzzyTextMatchAction.Matches.Add(new FuzzyTextMatch
+                    {
+                        Terms = { "stock" },
+                        Steps = { new SetPayloadStep("Say 'Thaddeus, stock [shopname]' where shopname is one of [rambows, curatorium].") }
+                    });
+
+                    fuzzyTextMatchAction.Matches.Add(new FuzzyTextMatch
+                    {
+                        Terms = { "stock rambows" },
+                        Steps = { new SetPayloadStep("At Rambow's bows n' arrows you can buy; 8 Bows for 1 diamond, 3 stacks of arrows for 1 diamond and many varieties of enchanted bows.") }
+                    });
+
+                    fuzzyTextMatchAction.Matches.Add(new FuzzyTextMatch
+                    {
+                        Terms = { "stock curatorium" },
+                        Steps = { new SetPayloadStep("At The Cura-torium you can buy; all varieties of potions currently priced at 3 per diamond.") }
+                    });
+
+                    fuzzyTextMatchAction.Matches.Add(new FuzzyTextMatch
+                    {
+                        Terms = { "shops", "what shops are there?" },
+                        Steps = { new SetPayloadStep("The shops available on Survivor's Island are; Rambow's bow n' arrows, and The cura-torium. Use the stock command to see what each shop sells.") }
+                    });
+
+                    fuzzyTextMatchAction.Matches.Add(new FuzzyTextMatch
+                    {
                         Terms = { "who are you?", "tell me about yourself" },
                         Steps = { new SetPayloadStep("My name is Thaddeus, and I am here to help.") }
                     });
@@ -76,35 +106,35 @@ namespace Imbick.Assistant.Service {
             return workflow;
         }
 
-        private Workflow BuildTravelEmailWorkflow() {
-            var workflow2 = new Workflow("Check if travel has been authorised.");
-            workflow2.AddStep(_fiveSecondInterval);
-            var exchangeSampler = new ExchangeEmailSampler("", "", "");
-            workflow2.AddStep(exchangeSampler);
-            return workflow2;
-        }
+        //private Workflow BuildTravelEmailWorkflow() {
+        //    var workflow2 = new Workflow("Check if travel has been authorised.");
+        //    workflow2.AddStep(_fiveSecondInterval);
+        //    var exchangeSampler = new ExchangeEmailSampler("", "", "");
+        //    workflow2.AddStep(exchangeSampler);
+        //    return workflow2;
+        //}
 
-        private Workflow BuildPlayerConnectedWorkflow() {
-            var adamsPhone = Guid.Parse("ef57afc0-9fea-45fc-93c9-a0ec8ada8546");
+        //private Workflow BuildPlayerConnectedWorkflow() {
+        //    var adamsPhone = Guid.Parse("ef57afc0-9fea-45fc-93c9-a0ec8ada8546");
 
-            var workflow1 = new Workflow("Check if Imbick is connected to mc.selea.se.");
+        //    var workflow1 = new Workflow("Check if Imbick is connected to mc.selea.se.");
 
-            workflow1.AddStep(_fiveSecondInterval);
+        //    workflow1.AddStep(_fiveSecondInterval);
 
-            var mcSampler = new MinecraftServerListPingSampler(_minecraftHost);
-            workflow1.AddStep(mcSampler);
+        //    var mcSampler = new MinecraftServerListPingSampler(_minecraftHost);
+        //    workflow1.AddStep(mcSampler);
 
-            var playerConnected = new MinecraftPlayerConnectedConditionStep(_redisStateProvider);
-            workflow1.AddStep(playerConnected);
+        //    var playerConnected = new MinecraftPlayerConnectedConditionStep(_redisStateProvider);
+        //    workflow1.AddStep(playerConnected);
 
-            //var notMe = new StringDoesNotEqualCondition("MinecraftPlayerConnected", "Imbick");
-            //workflow.AddStep(notMe);
+        //    //var notMe = new StringDoesNotEqualCondition("MinecraftPlayerConnected", "Imbick");
+        //    //workflow.AddStep(notMe);
 
-            //var printSuccess = new WriteStringToConsoleAction("Found Imbick!");
-            var raiseNotification = new RaiseNotificationAction(_redisStateProvider, new[] {adamsPhone},
-                "Player {MinecraftPlayerConnected} has just joined " + _minecraftHost);
-            workflow1.AddStep(raiseNotification);
-            return workflow1;
-        }
+        //    //var printSuccess = new WriteStringToConsoleAction("Found Imbick!");
+        //    var raiseNotification = new RaiseNotificationAction(_redisStateProvider, new[] {adamsPhone},
+        //        "Player {MinecraftPlayerConnected} has just joined " + _minecraftHost);
+        //    workflow1.AddStep(raiseNotification);
+        //    return workflow1;
+        //}
     }
 }

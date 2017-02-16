@@ -21,14 +21,7 @@ namespace Imbick.Assistant.Core.Steps.Actions {
         }
 
         public override async Task<RunResult> Run(WorkflowState workflowState) {
-            _logger.Trace($"Sending message {workflowState.Payload} to Minecraft server {_host}");
-            var message = new MinecraftChatMessage {
-                Name = "Thaddeus",
-                Message = workflowState.Payload.ToString()
-            };
-            var serialisedMessage = JsonConvert.SerializeObject(message);
-            var content = new StringContent(serialisedMessage, Encoding.UTF8, "application/json");
-            var response = await _client.PostAsync("/up/sendmessage", content);
+            var response = await GetResponse(workflowState);
             if (!response.IsSuccessStatusCode) {
                 _logger.Error($"Failed to send chat message to {response.RequestMessage.RequestUri.AbsoluteUri} ({response.StatusCode})");
                 return RunResult.Failed;
@@ -36,6 +29,17 @@ namespace Imbick.Assistant.Core.Steps.Actions {
 
             _logger.Trace("Sent");
             return RunResult.Passed;
+        }
+
+        private async Task<HttpResponseMessage> GetResponse(WorkflowState workflowState) {
+            _logger.Trace($"Sending message {workflowState.Payload} to Minecraft server {_host}");
+            var message = new MinecraftChatMessage {
+                Name = "Thaddeus",
+                Message = workflowState.Payload.ToString()
+            };
+            var serialisedMessage = JsonConvert.SerializeObject(message);
+            var content = new StringContent(serialisedMessage, Encoding.UTF8, "application/json");
+            return await _client.PostAsync("/up/sendmessage", content);
         }
 
         private readonly HttpClient _client;

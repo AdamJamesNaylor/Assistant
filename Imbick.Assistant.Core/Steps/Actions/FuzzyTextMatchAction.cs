@@ -22,11 +22,14 @@ namespace Imbick.Assistant.Core.Steps.Actions {
         public StepCollection FailureSteps { get; set; }
 
         public FuzzyTextMatchAction(Func<WorkflowState, string> valueResolver, int accuracyThreshold = 4)
-            : base("Match chat text action") {
+            : base("Fuzzy text match action") {
+
             _valueResolver = valueResolver;
             _accuracyThreshold = accuracyThreshold;
+
             Matches = new List<FuzzyTextMatch>();
             FailureSteps = new StepCollection();
+
             _logger = LogManager.GetCurrentClassLogger();
         }
 

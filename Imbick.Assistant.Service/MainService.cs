@@ -19,21 +19,26 @@ namespace Imbick.Assistant.Service {
 
         private void Start() {
             _logger.Info("Service starting.");
-            AppDomain currentDomain = AppDomain.CurrentDomain;
-            currentDomain.UnhandledException += CurrentDomain_UnhandledException;
-
-            var configurator = new WorkflowConfigurator();
-            var workflows = configurator.GetWorkflows();
-            var runner = new WorkflowRunner(100);
-            runner.Register(workflows);
-            runner.RunAllWorkflows();
-        }
-
-        private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs args) {
-            _logger.Error(args.ExceptionObject);
+            try
+            {
+                var configurator = new WorkflowConfigurator();
+                var workflows = configurator.GetWorkflows();
+                var runner = new WorkflowRunner(100);
+                runner.Register(workflows);
+                runner.RunAllWorkflows();
+            } catch (Exception ex) {
+                _logger.Error(ex);
+                StopService();
+                throw ex;
+            }
         }
 
         protected override void OnStop() {
+            StopService();
+        }
+
+        private void StopService()
+        {
             _logger.Info("Service stopping.");
         }
 

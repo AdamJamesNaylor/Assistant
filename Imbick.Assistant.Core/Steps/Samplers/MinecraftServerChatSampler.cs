@@ -28,20 +28,14 @@ namespace Imbick.Assistant.Core.Steps.Samplers {
         }
 
         public override async Task<RunResult> Run(WorkflowState workflowState) {
-            string requestUri = $"/up/world/world/{_ticks}";
-            _logger.Trace($"Checking for Minecraft chat messages at {_ticks} against {_host + requestUri}.");
-            var response = await _client.GetAsync(requestUri);
+            var response = await GetResponse();
             if (!response.IsSuccessStatusCode) {
                 _logger.Error($"Error checking for messages from {response.RequestMessage.RequestUri.AbsoluteUri} ({response.StatusCode}).");
                 return RunResult.Failed;
             }
 
-            var serialisedResponse = await response.Content.ReadAsStringAsync();
-            var dynMapResponse = JsonConvert.DeserializeObject<DynMapResponse>(serialisedResponse);
-            _ticks = dynMapResponse.timestamp;
-            var chatMessages = dynMapResponse.updates.Where(u => u.type == "chat");
+            var chatMessages = await DeserialiseChatMessages(response);
 
-            _logger.Trace($"{chatMessages.Count()} chat messages returned out of {dynMapResponse.updates.Count} updates.");
             if (!chatMessages.Any())
                 return RunResult.Failed;
 
@@ -52,6 +46,21 @@ namespace Imbick.Assistant.Core.Steps.Samplers {
                 });
 
             return RunResult.Passed;
+        }
+
+        private async Task<HttpResponseMessage> GetResponse() {
+            string requestUri = $"/up/world/world/{_ticks}";
+            _logger.Trace($"Checking for Minecraft chat messages at {_ticks} against {_host + requestUri}.");
+            return await _client.GetAsync(requestUri);
+        }
+
+        private async Task<IEnumerable<DynMapResponseUpdate>> DeserialiseChatMessages(HttpResponseMessage response) {
+            var serialisedResponse = await response.Content.ReadAsStringAsync();
+            var dynMapResponse = JsonConvert.DeserializeObject<DynMapResponse>(serialisedResponse);
+            _ticks = dynMapResponse.timestamp;
+            var chatMessages = dynMapResponse.updates.Where(u => u.type == "chat");
+            _logger.Trace($"{chatMessages.Count()} chat messages returned out of {dynMapResponse.updates.Count} updates.");
+            return chatMessages;
         }
 
         private readonly HttpClient _client;

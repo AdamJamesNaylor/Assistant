@@ -22,7 +22,7 @@
                 return RunResult.Failed;
             }
 
-            _logger.Debug($"IntervalCondition met after {_interval.Milliseconds}ms interval.");
+            _logger.Debug($"IntervalCondition met after {_interval.TotalMilliseconds}ms interval.");
             _lastFired = now;
             return RunResult.Passed;
         }

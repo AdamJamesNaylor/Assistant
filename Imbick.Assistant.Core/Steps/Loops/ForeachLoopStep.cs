@@ -1,7 +1,6 @@
 ﻿
 namespace Imbick.Assistant.Core.Steps.Loops {
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     using NLog;
 
@@ -17,14 +16,14 @@ namespace Imbick.Assistant.Core.Steps.Loops {
         }
 
         public override async Task<RunResult> Run(WorkflowState workflowState) {
-            _logger.Trace("Looping!!!!!!!!");
             var values = (IEnumerable<T>)workflowState.Payload;
-            _logger.Trace($"Enumerating {values.Count()} items.");
             foreach (var value in values) {
                 var subWorkflowState = new WorkflowState {
                     Payload = value
                 };
-                await Steps.Run(subWorkflowState);
+                var result = await Steps.Run(subWorkflowState);
+                if (!result.Continue)
+                    return RunResult.Failed;
             }
             return RunResult.Passed;
         }

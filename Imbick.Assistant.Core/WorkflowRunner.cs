@@ -6,12 +6,8 @@ namespace Imbick.Assistant.Core {
     using NLog;
     using Steps;
 
-    public class WorkflowRunner {
-        private readonly List<Workflow> _workflows = new List<Workflow>();
-        private Logger _logger;
-        private readonly int _interval;
-        private Timer _timer;
-
+    public class WorkflowRunner
+    : IDisposable {
         public WorkflowRunner(int interval) {
             _interval = interval;
         }
@@ -22,18 +18,14 @@ namespace Imbick.Assistant.Core {
         }
 
         private void Process(object stateInfo) {
-            _logger.Trace("Runner enabled, processing.");
+            _logger.Trace("Runner processing all workflows.");
 
             foreach (var workflow in _workflows) {
-                if (workflow.IsRunning)
+                if (workflow.IsRunning || !workflow.IsEnabled)
                     continue;
 
                 _logger.Debug($"Running workflow '{workflow.Name}' consisting of {workflow.Steps.Count} steps.");
-                var task = workflow.Run(new WorkflowState()); //todo where is the best place to create this state?
-                var result = task.Result;
-                if (task.Exception != null)
-                    _logger.Error(task.Exception);
-
+                workflow.Run(new WorkflowState()); //todo where is the best place to create this state?
             }
         }
 
@@ -43,5 +35,14 @@ namespace Imbick.Assistant.Core {
             _timer = new Timer(Process, autoEvent, _interval, _interval);
         }
 
+        public void Dispose()
+        {
+            _timer.Dispose();
+        }
+
+        private readonly List<Workflow> _workflows = new List<Workflow>();
+        private Logger _logger;
+        private readonly int _interval;
+        private Timer _timer;
     }
 }
